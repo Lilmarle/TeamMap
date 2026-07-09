@@ -41,6 +41,13 @@
             prefix-icon="Message"
           />
         </el-form-item>
+        <el-form-item prop="inviteCode">
+          <el-input
+            v-model="registerForm.inviteCode"
+            placeholder="邀请码（选填，管理员注册需要）"
+            prefix-icon="Key"
+          />
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" class="submit-btn" @click="handleRegister">
             注 册
@@ -50,6 +57,11 @@
       <div class="login-link">
         已有账号？
         <router-link to="/login">立即登录</router-link>
+      </div>
+      <div class="invite-tip">
+        <el-tooltip content="赛事管理员：dccshishabi | 系统管理员：hryshishabi" placement="bottom">
+          <span class="tip-text">了解管理员身份</span>
+        </el-tooltip>
       </div>
     </el-card>
   </div>
@@ -69,7 +81,8 @@ const registerForm = reactive({
   username: '',
   password: '',
   confirmPassword: '',
-  email: ''
+  email: '',
+  inviteCode: ''
 })
 
 const validateConfirmPassword = (rule, value, callback) => {
@@ -106,7 +119,8 @@ async function handleRegister() {
     await userStore.register({
       username: registerForm.username,
       password: registerForm.password,
-      email: registerForm.email
+      email: registerForm.email,
+      inviteCode: registerForm.inviteCode || undefined
     })
     ElMessage.success('注册成功，请登录')
     router.push('/login')
@@ -127,12 +141,17 @@ async function handleRegister() {
 
 .register-card {
   width: 450px;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
 .title {
   text-align: center;
   margin-bottom: 24px;
-  color: #333;
+  color: var(--color-text-primary);
+  font-size: 24px;
+  font-weight: 600;
 }
 
 .submit-btn {
@@ -142,11 +161,33 @@ async function handleRegister() {
 .login-link {
   text-align: center;
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .login-link a {
-  color: #409eff;
+  color: var(--color-primary);
   text-decoration: none;
+  font-weight: 500;
+}
+
+.login-link a:hover {
+  color: var(--color-primary-dark);
+}
+
+.invite-tip {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.tip-text {
+  color: var(--color-text-light);
+  cursor: pointer;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.tip-text:hover {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 </style>

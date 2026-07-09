@@ -27,6 +27,11 @@ export const useUserStore = defineStore('user', () => {
     return res
   }
 
+  // 修改密码
+  async function changePassword(passwordData) {
+    return await userApi.changePassword(passwordData)
+  }
+
   // 退出登录
   function logout() {
     user.value = null
@@ -40,6 +45,7 @@ export const useUserStore = defineStore('user', () => {
     login,
     register,
     getCurrentUser,
+    changePassword,
     logout
   }
 })

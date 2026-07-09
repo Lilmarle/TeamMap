@@ -1,6 +1,6 @@
 package com.marler.teammap.mapper;
 
-import com.marler.teammap.entity.User;
+import com.marler.teammap.pojo.User;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -10,6 +10,8 @@ import org.apache.ibatis.annotations.Mapper;
 public interface UserMapper {
 
     User selectById(Long id);
+
+    User findByUsername(String username);
 
     int insert(User user);
 

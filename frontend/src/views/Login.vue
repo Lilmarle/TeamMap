@@ -30,6 +30,9 @@
             登 录
           </el-button>
         </el-form-item>
+        <div class="forgot-password">
+          <router-link to="/change-password">忘记密码？</router-link>
+        </div>
       </el-form>
       <div class="register-link">
         还没有账号？
@@ -83,26 +86,52 @@ async function handleLogin() {
 
 .login-card {
   width: 400px;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
 .title {
   text-align: center;
   margin-bottom: 24px;
-  color: #333;
+  color: var(--color-text-primary);
+  font-size: 24px;
+  font-weight: 600;
 }
 
 .submit-btn {
   width: 100%;
 }
 
+.forgot-password {
+  text-align: right;
+  margin-top: -18px;
+  margin-bottom: 6px;
+}
+
+.forgot-password a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.forgot-password a:hover {
+  color: var(--color-primary);
+}
+
 .register-link {
   text-align: center;
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .register-link a {
-  color: #409eff;
+  color: var(--color-primary);
   text-decoration: none;
+  font-weight: 500;
+}
+
+.register-link a:hover {
+  color: var(--color-primary-dark);
 }
 </style>

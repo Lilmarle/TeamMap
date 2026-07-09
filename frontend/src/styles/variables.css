@@ -1,0 +1,64 @@
+/* ============================================
+   TeamMap 前端颜色系统
+   基于设计稿 6e87f87e8806252778acd83e578deaae.jpg
+   ============================================ */
+
+:root {
+  /* ===== 主品牌色（蓝色系） ===== */
+  --color-primary: #039FF2;           /* 核心蓝 - 导航栏、按钮、聚焦等主要交互元素 */
+  --color-primary-dark: #0280C2;      /* 深蓝 - 按压状态或强调效果 */
+  --color-primary-light: #56C5F7;     /* 浅蓝 - 背景或选中状态 */
+  --color-primary-bg: #E5F6FE;        /* 极浅蓝 - 卡片或列表背景，营造层次感 */
+
+  /* ===== 渐变按钮 ===== */
+  --color-gradient-start: #1AA4F0;    /* 渐变起始色 */
+  --color-gradient-end: #0280C2;      /* 渐变结束色 */
+
+  /* ===== 文字颜色（灰蓝中性色） ===== */
+  --color-text-primary: #1E293B;      /* 主要文字 - 深灰蓝，保证高可读性 */
+  --color-text-secondary: #64748B;    /* 次要文字 - 灰色，用于辅助信息 */
+  --color-text-medium: #6E7883;       /* 中灰文字 - 用于副标题 */
+  --color-text-light: #C7CDD4;        /* 浅灰文字 - 用于占位符或辅助说明 */
+  --color-text-white: #FFFFFF;        /* 白色文字 */
+
+  /* ===== 边框与分割线 ===== */
+  --color-border: #E2E8F0;           /* 分割线/边框 - 柔和灰 */
+  --color-border-input: #D1D5DB;     /* 输入框边框 - 比分割线略深 */
+  --color-border-focus: #039FF2;     /* 聚焦边框 - 复用品牌蓝 */
+
+  /* ===== 背景色 ===== */
+  --color-bg-white: #FFFFFF;          /* 纯白背景 */
+  --color-bg-gradient-start: #667eea; /* 渐变背景起始（保留原渐变兼容） */
+  --color-bg-gradient-end: #764ba2;   /* 渐变背景结束（保留原渐变兼容） */
+  --color-bg-card: #FFFFFF;           /* 卡片背景 */
+  --color-bg-page: #F8FAFC;          /* 页面背景 */
+
+  /* ===== Element Plus 主题覆盖 ===== */
+  --el-color-primary: var(--color-primary);
+  --el-color-primary-dark-2: var(--color-primary-dark);
+  --el-color-primary-light-3: var(--color-primary-light);
+  --el-color-primary-light-5: #93D9F9;
+  --el-color-primary-light-7: #C4E9FD;
+  --el-color-primary-light-8: #DAF1FE;
+  --el-color-primary-light-9: var(--color-primary-bg);
+  --el-color-primary-light-10: #F2F9FE;
+
+  /* ===== 深色模式适配 ===== */
+  --color-accent-dark: #8EDEFF;       /* 深色模式下的 AccentColor */
+}
+
+/* ===== 渐变按钮样式 ===== */
+.btn-gradient {
+  background: linear-gradient(135deg, var(--color-gradient-start), var(--color-gradient-end)) !important;
+  border: none !important;
+  color: #FFFFFF !important;
+  transition: opacity 0.3s ease !important;
+}
+
+.btn-gradient:hover {
+  opacity: 0.9;
+}
+
+.btn-gradient:active {
+  opacity: 0.8;
+}

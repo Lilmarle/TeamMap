@@ -44,5 +44,12 @@ export const userApi = {
    */
   deleteUser(id) {
     return request.delete(`/user/${id}`)
+  },
+
+  /**
+   * 修改密码
+   */
+  changePassword(data) {
+    return request.put('/user/change-password', data)
   }
 }
