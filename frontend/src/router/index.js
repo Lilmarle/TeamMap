@@ -24,6 +24,12 @@ const routes = [
     name: 'ChangePassword',
     component: () => import('@/views/ChangePassword.vue'),
     meta: { title: '修改密码' }
+  },
+  {
+    path: '/my-profile',
+    name: 'MyProfile',
+    component: () => import('@/views/MyProfile.vue'),
+    meta: { title: '个人信息' }
   }
 ]
 

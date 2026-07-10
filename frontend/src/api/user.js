@@ -51,5 +51,30 @@ export const userApi = {
    */
   changePassword(data) {
     return request.put('/user/change-password', data)
+  },
+
+  /**
+   * 获取用户详细信息（联表查询 user + user_profile）
+   */
+  getUserProfile(userId) {
+    return request.get(`/user-profile/detail/${userId}`)
+  },
+
+  /**
+   * 更新用户档案（昵称、头像、性别、年龄）
+   */
+  updateProfile(data) {
+    return request.put('/user-profile/update', data)
+  },
+
+  /**
+   * 上传头像文件
+   */
+  uploadAvatar(file) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return request.post('/upload/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
   }
 }

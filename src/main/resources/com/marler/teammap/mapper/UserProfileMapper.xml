@@ -24,4 +24,51 @@
         VALUES (#{userId}, #{nickname}, #{avatar}, #{gender}, #{age}, #{createTime}, #{updateTime})
     </insert>
 
+    <update id="updateByUserId" parameterType="com.marler.teammap.pojo.UserProfile">
+        UPDATE user_profile
+        <set>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="age != null">age = #{age},</if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <resultMap id="UserInfoDetailMap" type="com.marler.teammap.dto.response.UserInfoDetailResponse">
+        <result column="user_id" property="userId"/>
+        <result column="username" property="username"/>
+        <result column="role" property="role"/>
+        <result column="role_name" property="roleName"/>
+        <result column="nickname" property="nickname"/>
+        <result column="avatar" property="avatar"/>
+        <result column="gender_name" property="genderName"/>
+        <result column="age" property="age"/>
+    </resultMap>
+
+    <select id="selectUserInfoDetailById" resultMap="UserInfoDetailMap">
+        SELECT u.id        AS user_id,
+               u.username,
+               u.role,
+               CASE u.role
+                   WHEN 1 THEN '普通用户'
+                   WHEN 2 THEN '球员'
+                   WHEN 3 THEN '赛事管理员'
+                   WHEN 4 THEN '系统管理员'
+                   ELSE '未知'
+                   END     AS role_name,
+               up.nickname,
+               up.avatar,
+               CASE up.gender
+                   WHEN 0 THEN '未知'
+                   WHEN 1 THEN '男'
+                   WHEN 2 THEN '女'
+                   ELSE '未设置'
+                   END     AS gender_name,
+               up.age
+        FROM `user` u
+                 LEFT JOIN `user_profile` up ON u.id = up.user_id
+        WHERE u.id = #{userId}
+    </select>
+
 </mapper>
