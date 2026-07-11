@@ -1,0 +1,1 @@
+import{_ as t,o as a,a as r,c,u as _}from"./index-B5JjcqEM.js";import{g as n,R as s}from"./jwt-BVDHbxzX.js";const m={class:"home"},l={__name:"Home",setup(p){const o=_();return a(()=>{const e=n();e&&s[e]?o.replace(s[e]):o.replace("/home/normal")}),(e,u)=>(r(),c("div",m))}},i=t(l,[["__scopeId","data-v-2b46a59c"]]);export{i as default};

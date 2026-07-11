@@ -6,6 +6,8 @@ import com.marler.teammap.dto.request.LoginRequest;
 import com.marler.teammap.dto.response.LoginResponse;
 import com.marler.teammap.pojo.User;
 import com.marler.teammap.service.UserService;
+import com.marler.teammap.utils.JwtUtil;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -89,6 +91,38 @@ public class UserController {
         userService.changePassword(request.getUserId(), request.getOldPassword(), request.getNewPassword());
         log.info("修改密码成功 - userId: {}", request.getUserId());
         return Result.success("密码修改成功");
+    }
+
+    /**
+     * 获取当前登录用户（通过 JWT Token 解析用户身份）
+     */
+    @GetMapping("/session")
+    public Result<User> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        log.info("获取当前用户请求");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("获取当前用户失败：缺少有效的Authorization头");
+            return Result.error("未登录");
+        }
+
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            Claims claims = JwtUtil.parseToken(token);
+            Long userId = Long.valueOf(claims.getSubject());
+
+            User user = userService.findById(userId);
+            if (user == null) {
+                log.warn("获取当前用户失败：用户不存在 - userId: {}", userId);
+                return Result.error("用户不存在");
+            }
+            // 不返回密码
+            user.setPassword(null);
+            log.info("获取当前用户成功 - userId: {}, username: {}", userId, user.getUsername());
+            return Result.success(user);
+        } catch (Exception e) {
+            log.warn("获取当前用户失败：Token无效 - {}", e.getMessage());
+            return Result.error("token无效或已过期");
+        }
     }
 
     /**

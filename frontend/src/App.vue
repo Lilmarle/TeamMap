@@ -5,6 +5,15 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
+import { useUserStore } from '@/store/user'
+
+const userStore = useUserStore()
+
+onMounted(async () => {
+  // 页面刷新时，尝试从 localStorage 中的 token 恢复用户会话
+  await userStore.restoreSession()
+})
 </script>
 
 <style>

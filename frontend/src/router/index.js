@@ -8,6 +8,30 @@ const routes = [
     meta: { title: '首页' }
   },
   {
+    path: '/home/normal',
+    name: 'HomeNormal',
+    component: () => import('@/views/home/HomeNormal.vue'),
+    meta: { title: '首页 - 普通球员' }
+  },
+  {
+    path: '/home/sports',
+    name: 'HomeSports',
+    component: () => import('@/views/home/HomeSports.vue'),
+    meta: { title: '首页 - 体育用户' }
+  },
+  {
+    path: '/home/event-admin',
+    name: 'HomeEventAdmin',
+    component: () => import('@/views/home/HomeEventAdmin.vue'),
+    meta: { title: '首页 - 赛事管理' }
+  },
+  {
+    path: '/home/system-admin',
+    name: 'HomeSystemAdmin',
+    component: () => import('@/views/home/HomeSystemAdmin.vue'),
+    meta: { title: '首页 - 系统管理' }
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/Login.vue'),

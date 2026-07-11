@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.marler.teammap.mapper.TeamMapper">
+
+    <resultMap id="BaseResultMap" type="com.marler.teammap.pojo.Team">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="short_name" property="shortName"/>
+        <result column="logo" property="logo"/>
+        <result column="description" property="description"/>
+        <result column="type" property="type"/>
+        <result column="gender" property="gender"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, short_name, logo, description, type, gender, create_time, update_time
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO team (name, short_name, logo, description, type, gender, create_time, update_time)
+        VALUES (#{name}, #{shortName}, #{logo}, #{description}, #{type}, #{gender}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="updateById">
+        UPDATE team
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="shortName != null">short_name = #{shortName},</if>
+            <if test="logo != null">logo = #{logo},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectAllFromView" resultType="com.marler.teammap.dto.response.TeamInfoVO">
+        SELECT
+            team_id AS teamId,
+            team_name AS teamName,
+            team_short_name AS teamShortName,
+            team_logo AS teamLogo,
+            team_description AS teamDescription,
+            gender,
+            gender_name AS genderName,
+            college_full_name AS collegeFullName,
+            college_short_name AS collegeShortName,
+            team_rank AS teamRank,
+            rank_name AS rankName,
+            sport_type AS sportType,
+            sport_type_name AS sportTypeName,
+            member_count AS memberCount,
+            captain_count AS captainCount,
+            player_count AS playerCount,
+            coach_count AS coachCount,
+            leader_count AS leaderCount,
+            create_time AS createTime,
+            update_time AS updateTime
+        FROM v_team_info
+        ORDER BY team_id
+    </select>
+
+</mapper>

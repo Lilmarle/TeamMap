@@ -22,13 +22,14 @@ public class JwtUtil {
     /**
      * 生成JWT Token
      */
-    public static String generateToken(Long userId, String username) {
+    public static String generateToken(Long userId, String username, Integer role) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + EXPIRATION);
 
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
                 .claim("username", username)
+                .claim("role", role)
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(key, SignatureAlgorithm.HS256)
