@@ -25,6 +25,10 @@
         VALUES (#{name}, #{shortName}, #{logo}, #{description}, #{type}, #{gender}, #{createTime}, #{updateTime})
     </insert>
 
+    <delete id="deleteById">
+        DELETE FROM team WHERE id = #{id}
+    </delete>
+
     <update id="updateById">
         UPDATE team
         <set>

@@ -20,7 +20,7 @@ public class CollegeController {
     /**
      * 获取所有学院列表
      */
-    @GetMapping("/list")
+    @GetMapping
     public Result<List<College>> list() {
         List<College> colleges = collegeService.findAll();
         return Result.success(colleges);

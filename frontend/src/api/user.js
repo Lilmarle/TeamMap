@@ -57,14 +57,14 @@ export const userApi = {
    * 获取用户详细信息（联表查询 user + user_profile）
    */
   getUserProfile(userId) {
-    return request.get(`/user-profile/detail/${userId}`)
+    return request.get('/user-profile/' + userId)
   },
 
   /**
    * 更新用户档案（昵称、头像、性别、年龄）
    */
   updateProfile(data) {
-    return request.put('/user-profile/update', data)
+    return request.put('/user-profile/' + data.userId, data)
   },
 
   /**

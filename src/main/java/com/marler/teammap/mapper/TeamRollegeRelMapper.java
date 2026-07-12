@@ -8,4 +8,6 @@ public interface TeamRollegeRelMapper {
     int insert(TeamRollegeRel teamRollegeRel);
 
     int updateByTeamId(TeamRollegeRel teamRollegeRel);
+
+    int deleteByTeamId(Long teamId);
 }

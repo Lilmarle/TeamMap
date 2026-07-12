@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.marler.teammap.mapper.TournamentMapper">
+
+    <!-- 插入赛事 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tournament (name, creator_id, type, status, start_time, end_time)
+        VALUES (#{name}, #{creatorId}, #{type}, #{status}, #{startTime}, #{endTime})
+    </insert>
+
+    <!-- 查询所有赛事 -->
+    <select id="selectAll" resultType="com.marler.teammap.pojo.Tournament">
+        SELECT id, name, creator_id AS creatorId, type, status, start_time AS startTime,
+               end_time AS endTime, create_time AS createTime, update_time AS updateTime
+        FROM tournament
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据创办者ID查询赛事 -->
+    <select id="selectByCreatorId" resultType="com.marler.teammap.pojo.Tournament">
+        SELECT id, name, creator_id AS creatorId, type, status, start_time AS startTime,
+               end_time AS endTime, create_time AS createTime, update_time AS updateTime
+        FROM tournament
+        WHERE creator_id = #{creatorId}
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

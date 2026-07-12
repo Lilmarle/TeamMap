@@ -33,19 +33,13 @@ public class UserProfileController {
     /**
      * 修改成员信息
      */
-    @PutMapping("/update")
-    public Result<?> updateProfile(@RequestBody UpdateProfileRequest request) {
-        log.info("修改成员信息请求 - userId: {}", request.getUserId());
-
-        // 参数校验
-        if (request.getUserId() == null) {
-            log.warn("修改成员信息失败：用户ID为空");
-            return Result.error("用户ID不能为空");
-        }
+    @PutMapping("/{userId}")
+    public Result<?> updateProfile(@PathVariable Long userId, @RequestBody UpdateProfileRequest request) {
+        log.info("修改成员信息请求 - userId: {}", userId);
 
         // 将请求 DTO 转换为实体对象
         UserProfile userProfile = new UserProfile();
-        userProfile.setUserId(request.getUserId());
+        userProfile.setUserId(userId);
         userProfile.setNickname(request.getNickname());
         userProfile.setAvatar(request.getAvatar());
         userProfile.setGender(request.getGender());
@@ -53,11 +47,11 @@ public class UserProfileController {
 
         int rows = userProfileService.updateProfile(userProfile);
         if (rows <= 0) {
-            log.warn("修改成员信息失败：未找到对应的用户档案 - userId: {}", request.getUserId());
+            log.warn("修改成员信息失败：未找到对应的用户档案 - userId: {}", userId);
             return Result.error("修改失败，用户档案不存在");
         }
 
-        log.info("修改成员信息成功 - userId: {}", request.getUserId());
+        log.info("修改成员信息成功 - userId: {}", userId);
         return Result.success("修改成功");
     }
 
@@ -65,7 +59,7 @@ public class UserProfileController {
      * 更新个人资料（支持头像上传）
      * 通过 JWT Token 获取用户 ID，支持上传头像文件
      */
-    @PostMapping("/profile")
+    @PostMapping("/me")
     public Result<?> updateProfileWithAvatar(
             @RequestHeader("Authorization") String token,
             @RequestParam(required = false) String nickname,
@@ -136,7 +130,7 @@ public class UserProfileController {
     /**
      * 根据 userId 查询用户详细信息（联表查询 user + user_profile）
      */
-    @GetMapping("/detail/{userId}")
+    @GetMapping("/{userId}")
     public Result<UserInfoDetailResponse> getUserInfoDetail(@PathVariable Long userId) {
         log.info("查询用户详细信息请求 - userId: {}", userId);
 

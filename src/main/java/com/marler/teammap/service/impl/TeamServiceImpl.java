@@ -50,6 +50,19 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    // 删除球队
+    @Override
+    @Transactional
+    public void delete(Long teamId) {
+        // 1. 删除关联记录
+        teamRollegeRelService.deleteByTeamId(teamId);
+        log.info("球队关联记录删除成功 - teamId: {}", teamId);
+
+        // 2. 删除球队
+        teamMapper.deleteById(teamId);
+        log.info("球队删除成功 - id: {}", teamId);
+    }
+
     // 查询所有球队信息
     @Override
     public List<TeamInfoVO> getAllTeamInfo() {

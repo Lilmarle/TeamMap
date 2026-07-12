@@ -22,14 +22,19 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { Trophy, UserFilled, User } from '@element-plus/icons-vue'
 
-const activeTab = ref('events')
+const props = defineProps({
+  activeTab: {
+    type: String,
+    default: 'events'
+  }
+})
+
+const emit = defineEmits(['update:activeTab'])
 
 function handleSelect(index) {
-  activeTab.value = index
-  // TODO: 切换标签时触发内容更新
+  emit('update:activeTab', index)
 }
 </script>
 

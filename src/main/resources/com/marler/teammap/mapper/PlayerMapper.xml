@@ -2,12 +2,12 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.marler.teammap.mapper.TeamMemberMapper">
+<mapper namespace="com.marler.teammap.mapper.PlayerMapper">
 
-    <!-- 插入队伍成员 -->
+    <!-- 插入球员 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO team_member (team_id, user_id, portrait_photo, role)
-        VALUES (#{teamId}, #{userId}, #{portraitPhoto}, #{role})
+        INSERT INTO player (user_id, tm_id, jersey_name, jersey_number, position)
+        VALUES (#{userId}, #{tmId}, #{jerseyName}, #{jerseyNumber}, #{position})
     </insert>
 
 </mapper>

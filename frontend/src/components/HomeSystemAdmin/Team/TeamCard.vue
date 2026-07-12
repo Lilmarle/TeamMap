@@ -60,18 +60,23 @@
 
   <el-table-column prop="teamDescription" label="描述" min-width="150" show-overflow-tooltip />
 
-  <el-table-column label="操作" width="80" align="center" fixed="right">
+  <el-table-column label="操作" width="130" align="center" fixed="right">
     <template #default="{ row }">
       <el-button type="primary" size="small" :icon="Edit" circle @click="onEdit(row)" />
+      <el-button type="danger" size="small" :icon="Delete" circle @click="onDelete(row)" />
     </template>
   </el-table-column>
 </template>
 
 <script setup>
-import { Edit } from '@element-plus/icons-vue'
+import { Edit, Delete } from '@element-plus/icons-vue'
 
 const props = defineProps({
   onEdit: {
+    type: Function,
+    default: null
+  },
+  onDelete: {
     type: Function,
     default: null
   }

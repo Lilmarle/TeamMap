@@ -29,4 +29,10 @@ public class TeamRollegeRelServiceImpl implements TeamRollegeRelService {
         teamRollegeRel.setUpdateTime(LocalDateTime.now());
         teamRollegeRelMapper.updateByTeamId(teamRollegeRel);
     }
+
+    @Override
+    @Transactional
+    public void deleteByTeamId(Long teamId) {
+        teamRollegeRelMapper.deleteByTeamId(teamId);
+    }
 }

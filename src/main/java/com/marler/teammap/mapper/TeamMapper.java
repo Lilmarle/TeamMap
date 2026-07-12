@@ -12,5 +12,7 @@ public interface TeamMapper {
 
     int updateById(Team team);
 
+    int deleteById(Long id);
+
     List<TeamInfoVO> selectAllFromView();
 }

@@ -73,7 +73,7 @@
       row-key="teamId"
       class="team-table"
     >
-      <TeamCard :onEdit="handleEdit" />
+      <TeamCard :onEdit="handleEdit" :onDelete="handleDelete" />
     </el-table>
 
     <!-- 编辑球队对话框 -->
@@ -167,7 +167,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { teamApi } from '@/api/team'
 import { collegeApi } from '@/api/college'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search } from '@element-plus/icons-vue'
 import request from '@/api/request'
 import TeamCard from './TeamCard.vue'
@@ -233,6 +233,26 @@ function handleEdit(team) {
   }
 
   editDialogVisible.value = true
+}
+
+async function handleDelete(team) {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除球队「${team.teamName}」吗？此操作不可恢复。`,
+      '删除确认',
+      {
+        confirmButtonText: '确定删除',
+        cancelButtonText: '取消',
+        type: 'warning',
+        confirmButtonClass: 'el-button--danger'
+      }
+    )
+    await teamApi.deleteTeam(team.teamId)
+    ElMessage.success(`球队「${team.teamName}」已删除`)
+    await fetchTeams()
+  } catch {
+    // 用户取消则不处理
+  }
 }
 
 function beforeLogoUpload(file) {

@@ -22,6 +22,10 @@
         VALUES (#{teamId}, #{rank}, #{collegeId}, #{createTime}, #{updateTime})
     </insert>
 
+    <delete id="deleteByTeamId">
+        DELETE FROM team_college_rel WHERE team_id = #{teamId}
+    </delete>
+
     <update id="updateByTeamId">
         UPDATE team_college_rel
         <set>

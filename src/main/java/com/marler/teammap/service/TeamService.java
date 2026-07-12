@@ -11,5 +11,7 @@ public interface TeamService {
 
     void update(UpdateTeamRequest request);
 
+    void delete(Long teamId);
+
     List<TeamInfoVO> getAllTeamInfo();
 }

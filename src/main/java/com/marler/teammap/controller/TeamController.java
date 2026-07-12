@@ -8,8 +8,11 @@ import com.marler.teammap.pojo.Team;
 import com.marler.teammap.service.TeamService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +30,7 @@ public class TeamController {
     /**
      * 添加球队
      */
-    @PostMapping("/add")
+    @PostMapping
     public Result<?> add(@RequestBody AddTeamRequest request) {
         Team team = request.getTeam();
         log.info("添加球队请求 - name: {}, rank: {}", team.getName(), request.getRank());
@@ -58,25 +61,32 @@ public class TeamController {
     /**
      * 修改球队信息
      */
-    @PostMapping("/update")
-    public Result<?> update(@RequestBody UpdateTeamRequest request) {
-        log.info("修改球队信息请求 - teamId: {}", request.getTeamId());
-
-        // 参数校验
-        if (request.getTeamId() == null) {
-            log.warn("修改球队信息失败：球队ID为空");
-            return Result.error("球队ID不能为空");
-        }
+    @PutMapping("/{teamId}")
+    public Result<?> update(@PathVariable Long teamId, @RequestBody UpdateTeamRequest request) {
+        log.info("修改球队信息请求 - teamId: {}", teamId);
+        request.setTeamId(teamId);
 
         teamService.update(request);
-        log.info("修改球队信息成功 - teamId: {}", request.getTeamId());
+        log.info("修改球队信息成功 - teamId: {}", teamId);
         return Result.success("修改球队信息成功");
+    }
+
+    /**
+     * 删除球队
+     */
+    @DeleteMapping("/{teamId}")
+    public Result<?> delete(@PathVariable Long teamId) {
+        log.info("删除球队请求 - teamId: {}", teamId);
+
+        teamService.delete(teamId);
+        log.info("删除球队成功 - teamId: {}", teamId);
+        return Result.success("删除球队成功");
     }
 
     /**
      * 查询所有球队信息
      */
-    @GetMapping("/list")
+    @GetMapping
     public Result<List<TeamInfoVO>> list() {
         log.info("查询所有球队信息");
         List<TeamInfoVO> list = teamService.getAllTeamInfo();

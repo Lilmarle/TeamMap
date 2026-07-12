@@ -9,7 +9,7 @@ export const teamApi = {
    * @returns {Promise<{code: number, data: Array, message: string}>}
    */
   getAllTeams() {
-    return request.get('/team/list')
+    return request.get('/team')
   },
 
   /**
@@ -18,7 +18,7 @@ export const teamApi = {
    * @returns {Promise}
    */
   addTeam(data) {
-    return request.post('/team/add', data)
+    return request.post('/team', data)
   },
 
   /**
@@ -27,6 +27,15 @@ export const teamApi = {
    * @returns {Promise}
    */
   updateTeam(data) {
-    return request.post('/team/update', data)
+    return request.put('/team/' + data.teamId, data)
+  },
+
+  /**
+   * 删除球队
+   * @param {number} teamId - 球队ID
+   * @returns {Promise}
+   */
+  deleteTeam(teamId) {
+    return request.delete('/team/' + teamId)
   }
 }
