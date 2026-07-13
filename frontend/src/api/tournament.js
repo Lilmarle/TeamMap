@@ -27,5 +27,43 @@ export const tournamentApi = {
    */
   add(data) {
     return request.post('/tournament', data)
+  },
+
+  /**
+   * 删除赛事
+   * @param {number} id - 赛事ID
+   * @returns {Promise}
+   */
+  delete(id) {
+    return request.delete(`/tournament/${id}`)
+  },
+
+  /**
+   * 获取赛事关联的球队列表
+   * @param {number} tournamentId - 赛事ID
+   * @returns {Promise}
+   */
+  getTournamentTeams(tournamentId) {
+    return request.get(`/tournament-team/${tournamentId}/teams`)
+  },
+
+  /**
+   * 主办方批量邀请球队加入赛事
+   * @param {number} tournamentId - 赛事ID
+   * @param {number[]} teamIds - 球队ID列表
+   * @returns {Promise}
+   */
+  inviteBatch(tournamentId, teamIds) {
+    return request.post(`/tournament-team/invite/batch/${tournamentId}`, teamIds)
+  },
+
+  /**
+   * 主办方从赛事中移除球队
+   * @param {number} tournamentId - 赛事ID
+   * @param {number} teamId - 球队ID
+   * @returns {Promise}
+   */
+  removeTeam(tournamentId, teamId) {
+    return request.delete(`/tournament-team/${tournamentId}/${teamId}`)
   }
 }

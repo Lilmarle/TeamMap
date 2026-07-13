@@ -13,6 +13,15 @@ export const teamApi = {
   },
 
   /**
+   * 根据运动类型查询球队列表
+   * @param {number} type - 运动类型：1-足球，2-篮球，3-排球
+   * @returns {Promise}
+   */
+  getTeamsByType(type) {
+    return request.get(`/team/type/${type}`)
+  },
+
+  /**
    * 添加球队
    * @param {Object} data - 球队数据
    * @returns {Promise}

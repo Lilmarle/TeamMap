@@ -2,17 +2,25 @@
   <div class="home-event-admin">
     <HomeHeader />
     <div class="home-body">
-      <HomeTabs />
+      <HomeTabs v-model:activeTab="activeTab" />
       <main class="content-area">
-        <router-view />
+        <EventShowArea v-if="activeTab === 'events'" />
+        <TeamShowArea v-if="activeTab === 'teams'" />
+        <PlayerShowArea v-if="activeTab === 'players'" />
       </main>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import HomeHeader from '@/components/General/HomeHeader.vue'
 import HomeTabs from '@/components/General/HomeTabs.vue'
+import EventShowArea from '@/components/HomeEventAdmin.vue/Event/EventShowArea.vue'
+import TeamShowArea from '@/components/HomeEventAdmin.vue/Teams/TeamShowArea.vue'
+import PlayerShowArea from '@/components/HomeEventAdmin.vue/Players/PlayerShowArea.vue'
+
+const activeTab = ref('events')
 </script>
 
 <style scoped>

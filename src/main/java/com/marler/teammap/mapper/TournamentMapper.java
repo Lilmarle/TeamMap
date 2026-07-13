@@ -12,5 +12,9 @@ public interface TournamentMapper {
 
     List<Tournament> selectAll();
 
+    Tournament selectById(@Param("id") Long id);
+
     List<Tournament> selectByCreatorId(@Param("creatorId") Long creatorId);
+
+    void deleteById(@Param("id") Long id);
 }

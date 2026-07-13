@@ -10,4 +10,8 @@ public interface TournamentService {
     List<Tournament> getAll();
 
     List<Tournament> getByCreatorId(Long creatorId);
+
+    Tournament getById(Long id);
+
+    void deleteById(Long id);
 }

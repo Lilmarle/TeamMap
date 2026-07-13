@@ -1,41 +1,15 @@
 <template>
   <div class="event-show-area">
     <!-- 顶部功能条 -->
-    <div class="area-header">
-      <div class="header-left">
-        <h2 class="area-title">我的赛事</h2>
-        <el-select
-          v-model="selectedEventId"
-          placeholder="请选择赛事"
-          size="default"
-          class="event-select"
-          :loading="loading"
-          @change="handleEventChange"
-        >
-          <el-option
-            v-for="event in events"
-            :key="event.id"
-            :label="event.name"
-            :value="event.id"
-          >
-            <span class="event-option-label">{{ event.name }}</span>
-            <el-tag
-              :type="getStatusTagType(event.status)"
-              size="small"
-              class="event-option-tag"
-            >
-              {{ getStatusName(event.status) }}
-            </el-tag>
-          </el-option>
-        </el-select>
-      </div>
-
-      <div class="header-actions">
-        <el-button type="primary" :icon="Plus" @click="handleAdd">
-          添加赛事
-        </el-button>
-      </div>
-    </div>
+    <EventToolbar
+      :events="events"
+      :selected-event-id="selectedEventId"
+      :loading="loading"
+      @update:selected-event-id="handleEventChange"
+      @invite="handleInvite"
+      @delete="handleDelete"
+      @add="handleAdd"
+    />
 
     <!-- 加载状态 -->
     <div v-if="loading" class="loading-container">
@@ -70,42 +44,54 @@
       class="event-detail-area"
     >
       <template #teams>
-        <div class="tab-content-placeholder">
-          <el-empty description="参与球队管理" />
-        </div>
+        <EventTeams
+          :teams="tournamentTeams"
+          :tournament-id="selectedEventId"
+          :loading="loadingTeams"
+          :load-failed="teamsLoadFailed"
+          :error-message="teamsErrorMessage"
+          @update:load-failed="teamsLoadFailed = $event"
+          @refresh="fetchTournamentTeams"
+        />
       </template>
 
       <template #group>
-        <div class="tab-content-placeholder">
-          <el-empty description="小组赛管理" />
-        </div>
+        <EventGroup />
       </template>
 
       <template #knockout>
-        <div class="tab-content-placeholder">
-          <el-empty description="淘汰赛管理" />
-        </div>
+        <EventKnockout />
       </template>
 
       <template #schedule>
-        <div class="tab-content-placeholder">
-          <el-empty description="赛程管理" />
-        </div>
+        <EventSchedule />
       </template>
     </EventTabs>
 
     <!-- 添加赛事对话框 -->
     <AddEvent ref="addEventRef" @success="handleAddSuccess" />
+
+    <!-- 邀请球队对话框 -->
+    <EventInvite
+      ref="eventInviteRef"
+      :tournament="selectedEvent"
+      @success="handleInviteSuccess"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { tournamentApi } from '@/api/tournament'
-import { ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import EventToolbar from './EventToolbar.vue'
 import EventTabs from './EventTabs.vue'
+import EventTeams from './EventTeams.vue'
+import EventGroup from './EventGroup.vue'
+import EventKnockout from './EventKnockout.vue'
+import EventSchedule from './EventSchedule.vue'
 import AddEvent from '@/components/General/AddEvent.vue'
+import EventInvite from './EventInvite.vue'
 
 const events = ref([])
 const selectedEventId = ref(null)
@@ -115,30 +101,35 @@ const loading = ref(false)
 const loadFailed = ref(false)
 const errorMessage = ref('')
 const addEventRef = ref(null)
+const eventInviteRef = ref(null)
+
+/** 参赛球队相关状态 */
+const tournamentTeams = ref([])
+const loadingTeams = ref(false)
+const teamsLoadFailed = ref(false)
+const teamsErrorMessage = ref('')
 
 /**
- * 获取赛事状态名称
- * @param {number} status 1-筹办中，2-进行中，3-已结束
+ * 查询参赛球队列表
  */
-function getStatusName(status) {
-  switch (status) {
-    case 1: return '筹办中'
-    case 2: return '进行中'
-    case 3: return '已结束'
-    default: return '未知'
+async function fetchTournamentTeams() {
+  if (!selectedEventId.value) {
+    tournamentTeams.value = []
+    return
   }
-}
 
-/**
- * 获取状态标签类型
- * @param {number} status
- */
-function getStatusTagType(status) {
-  switch (status) {
-    case 1: return 'warning'
-    case 2: return 'success'
-    case 3: return 'info'
-    default: return 'info'
+  loadingTeams.value = true
+  teamsLoadFailed.value = false
+  teamsErrorMessage.value = ''
+
+  try {
+    const res = await tournamentApi.getTournamentTeams(selectedEventId.value)
+    tournamentTeams.value = res.data || []
+  } catch (e) {
+    teamsLoadFailed.value = true
+    teamsErrorMessage.value = e.message || '获取参赛球队列表失败'
+  } finally {
+    loadingTeams.value = false
   }
 }
 
@@ -173,6 +164,7 @@ async function fetchMyEvents() {
 function handleEventChange(eventId) {
   selectedEvent.value = events.value.find(e => e.id === eventId) || null
   activeTab.value = 'teams' // 切换赛事时回到第一个标签页
+  fetchTournamentTeams()
 }
 
 /**
@@ -183,12 +175,66 @@ function handleAdd() {
 }
 
 /**
+ * 删除当前选中的赛事
+ */
+async function handleDelete() {
+  if (!selectedEventId.value) return
+
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除赛事「${selectedEvent.value?.name}」吗？此操作不可撤销。`,
+      '确认删除',
+      {
+        confirmButtonText: '确定删除',
+        cancelButtonText: '取消',
+        type: 'warning',
+        confirmButtonClass: 'el-button--danger'
+      }
+    )
+
+    await tournamentApi.delete(selectedEventId.value)
+    ElMessage.success('赛事已删除')
+
+    await fetchMyEvents()
+  } catch (e) {
+    if (e !== 'cancel') {
+      ElMessage.error(e.message || '删除赛事失败')
+    }
+  }
+}
+
+/**
  * 添加赛事成功后的回调
  */
 function handleAddSuccess() {
   ElMessage.success('赛事已更新')
   fetchMyEvents()
 }
+
+/**
+ * 打开邀请球队对话框
+ */
+function handleInvite() {
+  eventInviteRef.value?.open()
+}
+
+/**
+ * 邀请球队成功后的回调
+ */
+function handleInviteSuccess() {
+  ElMessage.success('球队邀请成功')
+  fetchMyEvents()
+  fetchTournamentTeams()
+}
+
+// 当选中的赛事 ID 变化时，加载该赛事的参赛球队
+watch(selectedEventId, (newVal) => {
+  if (newVal) {
+    fetchTournamentTeams()
+  } else {
+    tournamentTeams.value = []
+  }
+})
 
 onMounted(() => {
   fetchMyEvents()
@@ -201,54 +247,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-/* ---- 顶部功能条 ---- */
-.area-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 16px 20px;
-  background: var(--color-bg-white);
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.area-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0;
-  white-space: nowrap;
-}
-
-.event-select {
-  width: 280px;
-}
-
-.event-option-label {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.event-option-tag {
-  margin-left: 8px;
-  flex-shrink: 0;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 
 /* ---- 加载状态 ---- */
@@ -267,10 +265,4 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.tab-content-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-}
 </style>

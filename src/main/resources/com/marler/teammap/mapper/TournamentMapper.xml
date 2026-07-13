@@ -18,6 +18,19 @@
         ORDER BY create_time DESC
     </select>
 
+    <!-- 根据ID查询赛事 -->
+    <select id="selectById" resultType="com.marler.teammap.pojo.Tournament">
+        SELECT id, name, creator_id AS creatorId, type, status, start_time AS startTime,
+               end_time AS endTime, create_time AS createTime, update_time AS updateTime
+        FROM tournament
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据ID删除赛事 -->
+    <delete id="deleteById">
+        DELETE FROM tournament WHERE id = #{id}
+    </delete>
+
     <!-- 根据创办者ID查询赛事 -->
     <select id="selectByCreatorId" resultType="com.marler.teammap.pojo.Tournament">
         SELECT id, name, creator_id AS creatorId, type, status, start_time AS startTime,

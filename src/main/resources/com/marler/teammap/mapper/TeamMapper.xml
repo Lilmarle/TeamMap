@@ -25,6 +25,12 @@
         VALUES (#{name}, #{shortName}, #{logo}, #{description}, #{type}, #{gender}, #{createTime}, #{updateTime})
     </insert>
 
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM team
+        WHERE id = #{id}
+    </select>
+
     <delete id="deleteById">
         DELETE FROM team WHERE id = #{id}
     </delete>
@@ -67,6 +73,13 @@
             update_time AS updateTime
         FROM v_team_info
         ORDER BY team_id
+    </select>
+
+    <select id="selectByType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM team
+        WHERE type = #{type}
+        ORDER BY name
     </select>
 
 </mapper>

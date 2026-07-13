@@ -31,8 +31,8 @@ public class Tournament {
     private Long id;
     private String name;
     private Long creatorId;
-    private Integer type;
-    private Integer status;
+    private Integer type;          // 运动类型：1-足球，2-篮球，3-排球
+    private Integer status;        // 状态：1-筹办中，2-进行中，3-已结束
     private String startTime;
     private String endTime;
     private String createTime;

@@ -28,6 +28,22 @@ public class TeamController {
     private TeamService teamService;
 
     /**
+     * 根据运动类型查询球队列表（用于主办方邀请时选择球队）
+     */
+    @GetMapping("/type/{type}")
+    public Result<List<Team>> getByType(@PathVariable Integer type) {
+        log.info("根据运动类型查询球队列表 - type: {}", type);
+
+        if (type == null || type < 1 || type > 3) {
+            log.warn("查询失败：无效的运动类型 - type: {}", type);
+            return Result.error("无效的运动类型，仅支持：1-足球，2-篮球，3-排球");
+        }
+
+        List<Team> list = teamService.getTeamsByType(type);
+        return Result.success(list);
+    }
+
+    /**
      * 添加球队
      */
     @PostMapping
@@ -77,7 +93,6 @@ public class TeamController {
     @DeleteMapping("/{teamId}")
     public Result<?> delete(@PathVariable Long teamId) {
         log.info("删除球队请求 - teamId: {}", teamId);
-
         teamService.delete(teamId);
         log.info("删除球队成功 - teamId: {}", teamId);
         return Result.success("删除球队成功");

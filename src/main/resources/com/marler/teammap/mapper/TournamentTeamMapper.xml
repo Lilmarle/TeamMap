@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.marler.teammap.mapper.TournamentTeamMapper">
+
+    <resultMap id="BaseResultMap" type="com.marler.teammap.pojo.TournamentTeam">
+        <id column="id" property="id"/>
+        <result column="tournament_id" property="tournamentId"/>
+        <result column="team_id" property="teamId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, tournament_id, team_id, status, create_time, update_time
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tournament_team (tournament_id, team_id, status)
+        VALUES (#{tournamentId}, #{teamId}, #{status})
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tournament_team
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE tournament_team
+        SET status = #{status}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteByTournamentIdAndTeamId">
+        DELETE FROM tournament_team
+        WHERE tournament_id = #{tournamentId} AND team_id = #{teamId}
+    </delete>
+
+    <select id="selectByTournamentIdAndTeamId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tournament_team
+        WHERE tournament_id = #{tournamentId} AND team_id = #{teamId}
+    </select>
+
+    <select id="selectTeamsByTournamentId" resultType="com.marler.teammap.dto.response.TournamentTeamInfoVO">
+        SELECT
+            rel_id AS relId,
+            tournament_id AS tournamentId,
+            tournament_name AS tournamentName,
+            team_id AS teamId,
+            team_name AS teamName,
+            team_short_name AS teamShortName,
+            team_logo AS teamLogo,
+            sport_type AS sportType,
+            sport_type_name AS sportTypeName,
+            gender,
+            gender_name AS genderName,
+            status,
+            status_name AS statusName,
+            member_count AS memberCount,
+            apply_time AS applyTime,
+            audit_time AS auditTime
+        FROM v_tournament_team_info
+        WHERE tournament_id = #{tournamentId}
+        ORDER BY apply_time DESC
+    </select>
+
+</mapper>

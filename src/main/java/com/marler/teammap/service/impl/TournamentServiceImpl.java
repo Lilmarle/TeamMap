@@ -33,4 +33,17 @@ public class TournamentServiceImpl implements TournamentService {
         log.info("查询用户创建的赛事 - creatorId: {}", creatorId);
         return tournamentMapper.selectByCreatorId(creatorId);
     }
+
+    @Override
+    public Tournament getById(Long id) {
+        log.info("查询赛事 - id: {}", id);
+        return tournamentMapper.selectById(id);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        log.info("删除赛事 - id: {}", id);
+        tournamentMapper.deleteById(id);
+        log.info("赛事删除成功 - id: {}", id);
+    }
 }
