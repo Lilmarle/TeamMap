@@ -56,7 +56,10 @@
       </template>
 
       <template #group>
-        <EventGroup />
+        <EventGroup
+          :tournament-id="selectedEventId"
+          :tournament-teams="tournamentTeams"
+        />
       </template>
 
       <template #knockout>

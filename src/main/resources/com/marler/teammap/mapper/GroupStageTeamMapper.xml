@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.marler.teammap.mapper.GroupStageTeamMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO group_stage_team (group_stage_id, team_id, win, draw, loss, points, goals_for, goals_against, goal_difference)
+        VALUES (#{groupStageId}, #{teamId}, #{win}, #{draw}, #{loss}, #{points}, #{goalsFor}, #{goalsAgainst}, #{goalDifference})
+    </insert>
+
+    <insert id="insertBatch">
+        INSERT INTO group_stage_team (group_stage_id, team_id, win, draw, loss, points, goals_for, goals_against, goal_difference)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.groupStageId}, #{item.teamId}, #{item.win}, #{item.draw}, #{item.loss}, #{item.points}, #{item.goalsFor}, #{item.goalsAgainst}, #{item.goalDifference})
+        </foreach>
+    </insert>
+
+    <select id="selectByGroupStageId" resultType="com.marler.teammap.pojo.GroupStageTeam">
+        SELECT * FROM group_stage_team WHERE group_stage_id = #{groupStageId}
+    </select>
+
+</mapper>

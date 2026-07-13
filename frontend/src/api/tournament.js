@@ -65,5 +65,70 @@ export const tournamentApi = {
    */
   removeTeam(tournamentId, teamId) {
     return request.delete(`/tournament-team/${tournamentId}/${teamId}`)
+  },
+
+  // ==================== 小组赛相关 ====================
+
+  /**
+   * 获取赛事的所有小组
+   * @param {number} tournamentId - 赛事ID
+   * @returns {Promise}
+   */
+  getGroupStages(tournamentId) {
+    return request.get(`/group-stage/tournament/${tournamentId}`)
+  },
+
+  /**
+   * 添加单个小组
+   * @param {Object} data - 小组数据
+   * @returns {Promise}
+   */
+  addGroupStage(data) {
+    return request.post('/group-stage', data)
+  },
+
+  /**
+   * 批量添加小组
+   * @param {Object} data - 批量小组数据 { tournamentId, groups: [...] }
+   * @returns {Promise}
+   */
+  batchAddGroupStages(data) {
+    return request.post('/group-stage/batch', data)
+  },
+
+  /**
+   * 获取小组详情（含球队成绩，已联查球队名称和Logo）
+   * @param {number} groupStageId - 小组ID
+   * @returns {Promise}
+   */
+  getGroupStageDetail(groupStageId) {
+    return request.get(`/group-stage/${groupStageId}/detail`)
+  },
+
+  /**
+   * 获取某小组的所有球队及成绩
+   * @param {number} groupStageId - 小组ID
+   * @returns {Promise}
+   */
+  getGroupStageTeams(groupStageId) {
+    return request.get(`/group-stage-team/group/${groupStageId}`)
+  },
+
+  /**
+   * 为单个小组批量添加球队
+   * @param {Object} data - { groupStageId, teamIds: [...] }
+   * @returns {Promise}
+   */
+  addTeamsToGroup(data) {
+    return request.post('/group-stage-team/batch', data)
+  },
+
+  /**
+   * 为赛事所有小组分配球队
+   * @param {Object} data - { tournamentId, assignments: [...] }
+   * @returns {Promise}
+   */
+  assignTeamsToGroups(data) {
+    return request.post('/group-stage-team/tournament', data)
   }
 }
