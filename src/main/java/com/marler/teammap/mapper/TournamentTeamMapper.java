@@ -1,6 +1,7 @@
 package com.marler.teammap.mapper;
 
 import com.marler.teammap.dto.response.TournamentTeamInfoVO;
+import com.marler.teammap.dto.response.TournamentTeamSimpleVO;
 import com.marler.teammap.pojo.TournamentTeam;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -17,6 +18,8 @@ public interface TournamentTeamMapper {
                                                   @Param("teamId") Long teamId);
 
     List<TournamentTeamInfoVO> selectTeamsByTournamentId(@Param("tournamentId") Long tournamentId);
+
+    List<TournamentTeamSimpleVO> selectSimpleTeamsByTournamentId(@Param("tournamentId") Long tournamentId);
 
     void updateStatus(@Param("id") Long id, @Param("status") Integer status);
 

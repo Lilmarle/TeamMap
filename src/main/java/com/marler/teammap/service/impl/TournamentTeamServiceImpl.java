@@ -1,6 +1,7 @@
 package com.marler.teammap.service.impl;
 
 import com.marler.teammap.dto.response.TournamentTeamInfoVO;
+import com.marler.teammap.dto.response.TournamentTeamSimpleVO;
 import com.marler.teammap.mapper.TeamMapper;
 import com.marler.teammap.mapper.TournamentMapper;
 import com.marler.teammap.mapper.TournamentTeamMapper;
@@ -95,6 +96,12 @@ public class TournamentTeamServiceImpl implements TournamentTeamService {
     public List<TournamentTeamInfoVO> getTeamsByTournamentId(Long tournamentId) {
         log.info("查询与赛事关联的球队列表 - tournamentId: {}", tournamentId);
         return tournamentTeamMapper.selectTeamsByTournamentId(tournamentId);
+    }
+
+    @Override
+    public List<TournamentTeamSimpleVO> getSimpleTeamsByTournamentId(Long tournamentId) {
+        log.info("查询某赛事的球队简化信息 - tournamentId: {}", tournamentId);
+        return tournamentTeamMapper.selectSimpleTeamsByTournamentId(tournamentId);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.marler.teammap.controller;
 
 import com.marler.teammap.common.Result;
 import com.marler.teammap.dto.response.TournamentTeamInfoVO;
+import com.marler.teammap.dto.response.TournamentTeamSimpleVO;
 import com.marler.teammap.service.TournamentTeamService;
 import com.marler.teammap.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -94,6 +95,22 @@ public class TournamentTeamController {
         }
 
         List<TournamentTeamInfoVO> list = tournamentTeamService.getTeamsByTournamentId(tournamentId);
+        return Result.success(list);
+    }
+
+    /**
+     * 查询某赛事的球队（简化版，仅返回 teamId + 队名 + logo）
+     */
+    @GetMapping("/{tournamentId}/teams/simple")
+    public Result<List<TournamentTeamSimpleVO>> getSimpleTeams(@PathVariable Long tournamentId) {
+        log.info("查询某赛事的球队简化信息 - tournamentId: {}", tournamentId);
+
+        if (tournamentId == null || tournamentId <= 0) {
+            log.warn("查询失败：赛事ID无效");
+            return Result.error("赛事ID无效");
+        }
+
+        List<TournamentTeamSimpleVO> list = tournamentTeamService.getSimpleTeamsByTournamentId(tournamentId);
         return Result.success(list);
     }
 

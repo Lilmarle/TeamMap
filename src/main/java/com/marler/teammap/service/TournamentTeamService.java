@@ -1,6 +1,7 @@
 package com.marler.teammap.service;
 
 import com.marler.teammap.dto.response.TournamentTeamInfoVO;
+import com.marler.teammap.dto.response.TournamentTeamSimpleVO;
 
 import java.util.List;
 
@@ -21,6 +22,14 @@ public interface TournamentTeamService {
      * @return 关联球队信息列表
      */
     List<TournamentTeamInfoVO> getTeamsByTournamentId(Long tournamentId);
+
+    /**
+     * 查询某赛事的球队（简化版，仅返回 teamId + teamName + teamLogo）
+     *
+     * @param tournamentId 赛事ID
+     * @return 球队简化信息列表
+     */
+    List<TournamentTeamSimpleVO> getSimpleTeamsByTournamentId(Long tournamentId);
 
     /**
      * 审批球队申请

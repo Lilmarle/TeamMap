@@ -17,7 +17,7 @@
         </div>
       </div>
       <div class="group-header-actions">
-        <el-button size="small" type="primary" @click="showTeamSelector = true">
+        <el-button size="small" type="primary" @click="$emit('assign-team', groupStage)">
           分配球队
         </el-button>
       </div>
@@ -74,21 +74,12 @@
       <el-empty v-else description="暂未分配球队" :image-size="80" />
     </template>
 
-    <!-- 分配球队对话框 -->
-    <EventGroupAssign
-      v-model:visible="showTeamSelector"
-      :group-stage="groupStage"
-      :tournament-teams="tournamentTeams"
-      :existing-team-ids="existingTeamIds"
-      @success="handleAssignSuccess"
-    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { tournamentApi } from '@/api/tournament'
-import EventGroupAssign from './EventGroupAssign.vue'
 
 const props = defineProps({
   groupStage: { type: Object, required: true },
@@ -97,12 +88,11 @@ const props = defineProps({
   tournamentTeams: { type: Array, default: () => [] }
 })
 
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh', 'assign-team'])
 
 /** 小组内球队列表及成绩 */
 const groupTeams = ref([])
 const loadingTeams = ref(false)
-const showTeamSelector = ref(false)
 
 /**
  * 加载小组详情（含球队成绩）
@@ -149,18 +139,6 @@ function getRowClassName({ row, rowIndex }) {
   if (rank <= directEnd) return 'row-qualified-direct'
   if (rank <= indirectEnd) return 'row-qualified-indirect'
   return ''
-}
-
-/**
- * 已分配到此小组的球队ID列表（传递给子组件用于过滤）
- */
-const existingTeamIds = computed(() => {
-  return groupTeams.value.map(t => t.teamId)
-})
-
-/** 分配球队成功后刷新 */
-function handleAssignSuccess() {
-  emit('refresh')
 }
 
 // 监听 groupStage.id 变化，重新加载

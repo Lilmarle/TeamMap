@@ -68,4 +68,17 @@
         ORDER BY apply_time DESC
     </select>
 
+    <select id="selectSimpleTeamsByTournamentId"
+            resultType="com.marler.teammap.dto.response.TournamentTeamSimpleVO">
+        SELECT
+            t.id AS teamId,
+            t.name AS teamName,
+            t.logo AS teamLogo
+        FROM tournament_team tt
+                 INNER JOIN team t ON tt.team_id = t.id
+        WHERE tt.tournament_id = #{tournamentId}
+          AND tt.status = 2
+        ORDER BY tt.create_time DESC
+    </select>
+
 </mapper>
