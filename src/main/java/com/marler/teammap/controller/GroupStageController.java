@@ -229,4 +229,49 @@ public class GroupStageController {
         }
         return Result.success(vo);
     }
+
+    /**
+     * 删除小组（同时删除已分配的球队关联）
+     * DELETE /api/group-stage/{id}
+     */
+    @DeleteMapping("/{id}")
+    public Result<?> delete(@PathVariable Integer id,
+                            @RequestHeader("Authorization") String authHeader) {
+        log.info("删除小组请求 - id: {}", id);
+
+        // 1. Token 校验
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("删除小组失败：未登录");
+            return Result.error("未登录");
+        }
+
+        // 2. 解析 Token
+        Claims claims;
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            claims = JwtUtil.parseToken(token);
+        } catch (Exception e) {
+            log.warn("删除小组失败：Token无效 - {}", e.getMessage());
+            return Result.error("token无效或已过期");
+        }
+
+        Integer role = claims.get("role", Integer.class);
+        Long userId = Long.valueOf(claims.getSubject());
+
+        // 3. 权限校验：role >= 3 才能操作
+        if (role == null || role < 3) {
+            log.warn("删除小组失败：权限不足 - userId: {}, role: {}", userId, role);
+            return Result.error("权限不足，需要赛事管理员或系统管理员角色");
+        }
+
+        // 4. 执行删除
+        try {
+            groupStageService.deleteGroup(id);
+            log.info("删除小组成功 - id: {}", id);
+            return Result.success("小组已取消，已分配的球队已移除");
+        } catch (RuntimeException e) {
+            log.warn("删除小组失败：{}", e.getMessage());
+            return Result.error(e.getMessage());
+        }
+    }
 }

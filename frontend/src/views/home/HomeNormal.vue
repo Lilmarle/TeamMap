@@ -1,37 +1,15 @@
 <template>
-  <div class="home-normal">
-    <HomeHeader />
-    <div class="home-body">
-      <HomeTabs />
-      <main class="content-area">
-        <router-view />
-      </main>
-    </div>
-  </div>
+  <HomeLayout>
+    <template #default>
+      <router-view />
+    </template>
+  </HomeLayout>
 </template>
 
 <script setup>
-import HomeHeader from '@/components/General/HomeHeader.vue'
-import HomeTabs from '@/components/General/HomeTabs.vue'
+import HomeLayout from '@/components/General/HomeLayout.vue'
 </script>
 
 <style scoped>
-.home-normal {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.home-body {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-}
-
-.content-area {
-  flex: 1;
-  background: var(--color-bg-page);
-  overflow-y: auto;
-  padding: 20px;
-}
+/* 布局样式由 HomeLayout 统一管理 */
 </style>

@@ -19,4 +19,8 @@
         SELECT * FROM group_stage_team WHERE group_stage_id = #{groupStageId}
     </select>
 
+    <delete id="deleteByGroupStageId">
+        DELETE FROM group_stage_team WHERE group_stage_id = #{groupStageId}
+    </delete>
+
 </mapper>

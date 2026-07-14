@@ -17,6 +17,18 @@
         </div>
       </div>
       <div class="group-header-actions">
+        <el-popconfirm
+          title="确定取消此分组？已分配的球队将被移除。"
+          confirm-button-text="确定"
+          cancel-button-text="取消"
+          @confirm="$emit('delete-group', groupStage)"
+        >
+          <template #reference>
+            <el-button size="small" type="danger" plain>
+              取消分组
+            </el-button>
+          </template>
+        </el-popconfirm>
         <el-button size="small" type="primary" @click="$emit('assign-team', groupStage)">
           分配球队
         </el-button>
@@ -88,7 +100,7 @@ const props = defineProps({
   tournamentTeams: { type: Array, default: () => [] }
 })
 
-const emit = defineEmits(['refresh', 'assign-team'])
+const emit = defineEmits(['refresh', 'assign-team', 'delete-group'])
 
 /** 小组内球队列表及成绩 */
 const groupTeams = ref([])

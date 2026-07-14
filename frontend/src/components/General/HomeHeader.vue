@@ -1,25 +1,33 @@
 <template>
   <el-header class="home-header">
-    <div class="logo" @click="goHome">TeamMap</div>
+    <div class="header-left">
+      <slot name="logo">
+        <div class="logo" @click="goHome">TeamMap</div>
+      </slot>
+      <slot name="header-prepend" />
+    </div>
     <div class="nav">
-      <template v-if="userStore.user">
-        <span class="user-info" @click="goProfile">
-          <el-avatar
-            :size="32"
-            :src="avatar"
-            class="user-avatar"
-          >
-            <el-icon><User /></el-icon>
-          </el-avatar>
-          <span class="user-name">{{ nickname || userStore.user.username }}</span>
-        </span>
-        <el-button @click="goChangePassword">修改密码</el-button>
-        <el-button type="primary" @click="handleLogout">退出登录</el-button>
-      </template>
-      <template v-else>
-        <el-button type="primary" @click="goLogin">登录</el-button>
-        <el-button @click="goRegister">注册</el-button>
-      </template>
+      <slot name="header-append" />
+      <slot name="nav">
+        <template v-if="userStore.user">
+          <span class="user-info" @click="goProfile">
+            <el-avatar
+              :size="32"
+              :src="avatar"
+              class="user-avatar"
+            >
+              <el-icon><User /></el-icon>
+            </el-avatar>
+            <span v-ellipsis-tooltip class="user-name">{{ nickname || userStore.user.username }}</span>
+          </span>
+          <el-button @click="goChangePassword">修改密码</el-button>
+          <el-button type="primary" @click="handleLogout">退出登录</el-button>
+        </template>
+        <template v-else>
+          <el-button type="primary" @click="goLogin">登录</el-button>
+          <el-button @click="goRegister">注册</el-button>
+        </template>
+      </slot>
     </div>
   </el-header>
 </template>
@@ -86,6 +94,12 @@ function handleLogout() {
   justify-content: space-between;
   background: var(--color-bg-white);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .logo {

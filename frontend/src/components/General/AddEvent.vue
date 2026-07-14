@@ -15,7 +15,7 @@
       size="default"
     >
       <el-form-item label="赛事名称" prop="name">
-        <el-input v-model="form.name" placeholder="请输入赛事名称" maxlength="100" show-word-limit />
+        <el-input v-focus v-model="form.name" placeholder="请输入赛事名称" maxlength="100" show-word-limit />
       </el-form-item>
 
       <el-form-item label="运动类型" prop="type">

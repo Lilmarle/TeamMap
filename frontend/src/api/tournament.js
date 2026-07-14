@@ -106,6 +106,15 @@ export const tournamentApi = {
   },
 
   /**
+   * 删除小组（同时移除已分配的球队）
+   * @param {number} groupStageId - 小组ID
+   * @returns {Promise}
+   */
+  deleteGroupStage(groupStageId) {
+    return request.delete(`/group-stage/${groupStageId}`)
+  },
+
+  /**
    * 获取某小组的所有球队及成绩
    * @param {number} groupStageId - 小组ID
    * @returns {Promise}

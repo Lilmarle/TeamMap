@@ -1,10 +1,10 @@
 <template>
   <div class="team-show-area">
-    <div class="area-header">
-      <h2 class="area-title">球队管理</h2>
-      <div class="header-actions">
+    <PageHeader title="球队管理">
+      <template #actions>
         <el-input
           v-model="searchKeyword"
+          v-debounce:300="onSearchInput"
           placeholder="搜索球队名称、简称、类型..."
           :prefix-icon="Search"
           clearable
@@ -36,45 +36,30 @@
           />
         </el-select>
         <el-button type="primary" :icon="Plus" @click="handleAdd">添加球队</el-button>
-      </div>
-    </div>
-
-    <!-- 加载状态 -->
-    <div v-if="loading" class="loading-container">
-      <el-skeleton :rows="3" animated />
-    </div>
-
-    <!-- 错误状态 -->
-    <el-alert
-      v-else-if="loadFailed"
-      title="加载失败"
-      type="error"
-      :description="errorMessage"
-      show-icon
-      closable
-      @close="loadFailed = false"
-    >
-      <template #actions>
-        <el-button size="small" type="primary" @click="fetchTeams">重试</el-button>
       </template>
-    </el-alert>
+    </PageHeader>
 
-    <!-- 搜索结果为空 -->
-    <el-empty v-else-if="filteredTeams.length === 0" :description="searchKeyword ? '未匹配到相关球队' : '暂无球队数据'" />
-
-    <!-- 球队表格 -->
-    <el-table
-      v-else
-      :data="filteredTeams"
-      border
-      stripe
-      style="width: 100%"
-      size="default"
-      row-key="teamId"
-      class="team-table"
+    <AsyncContent
+      :loading="loading"
+      :load-failed="loadFailed"
+      :error-message="errorMessage"
+      :is-empty="filteredTeams.length === 0"
+      :empty-description="searchKeyword ? '未匹配到相关球队' : '暂无球队数据'"
+      @retry="fetchTeams"
+      @update:load-failed="loadFailed = $event"
     >
-      <TeamCard :onEdit="handleEdit" :onDelete="handleDelete" />
-    </el-table>
+      <el-table
+        :data="filteredTeams"
+        border
+        stripe
+        style="width: 100%"
+        size="default"
+        row-key="teamId"
+        class="team-table"
+      >
+        <TeamCard :onEdit="handleEdit" :onDelete="handleDelete" />
+      </el-table>
+    </AsyncContent>
 
     <!-- 编辑球队对话框 -->
     <el-dialog v-model="editDialogVisible" title="修改球队信息" width="560px" :close-on-click-modal="false">
@@ -170,6 +155,8 @@ import { collegeApi } from '@/api/college'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search } from '@element-plus/icons-vue'
 import request from '@/api/request'
+import PageHeader from '@/components/General/PageHeader.vue'
+import AsyncContent from '@/components/General/AsyncContent.vue'
 import TeamCard from './TeamCard.vue'
 
 const teams = ref([])
@@ -180,6 +167,14 @@ const searchKeyword = ref('')
 const filterSport = ref('')
 const filterGender = ref('')
 const filterCollege = ref('')
+
+/** 防抖后的搜索关键词（由 v-debounce 更新） */
+const debouncedKeyword = ref('')
+
+/** 搜索输入防抖回调 */
+function onSearchInput(value) {
+  debouncedKeyword.value = value
+}
 
 // ---- 编辑对话框 ----
 const editDialogVisible = ref(false)
@@ -337,8 +332,8 @@ const collegeOptions = computed(() => {
 const filteredTeams = computed(() => {
   let result = teams.value
 
-  // 关键词模糊搜索
-  const keyword = searchKeyword.value.trim().toLowerCase()
+    // 关键词模糊搜索（使用防抖后的关键词）
+  const keyword = debouncedKeyword.value.trim().toLowerCase()
   if (keyword) {
     result = result.filter(team => {
       return (
@@ -402,28 +397,7 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.area-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.area-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .search-input {
@@ -432,10 +406,6 @@ onMounted(() => {
 
 .filter-select {
   width: 140px;
-}
-
-.loading-container {
-  padding: 40px;
 }
 
 /* Logo 上传样式 */

@@ -5,18 +5,18 @@
       class="tabs-menu"
       @select="handleSelect"
     >
-      <el-menu-item index="events">
-        <el-icon><Trophy /></el-icon>
-        <span>赛事</span>
-      </el-menu-item>
-      <el-menu-item index="teams">
-        <el-icon><UserFilled /></el-icon>
-        <span>球队</span>
-      </el-menu-item>
-      <el-menu-item index="players">
-        <el-icon><User /></el-icon>
-        <span>球员</span>
-      </el-menu-item>
+      <slot name="items">
+        <el-menu-item
+          v-for="tab in tabs"
+          :key="tab.key"
+          :index="tab.key"
+        >
+          <el-icon v-if="tab.icon">
+            <component :is="tab.icon" />
+          </el-icon>
+          <span>{{ tab.label }}</span>
+        </el-menu-item>
+      </slot>
     </el-menu>
   </nav>
 </template>
@@ -28,6 +28,15 @@ const props = defineProps({
   activeTab: {
     type: String,
     default: 'events'
+  },
+  /** 菜单项配置数组：{ key, icon, label } */
+  tabs: {
+    type: Array,
+    default: () => [
+      { key: 'events', icon: Trophy, label: '赛事' },
+      { key: 'teams', icon: UserFilled, label: '球队' },
+      { key: 'players', icon: User, label: '球员' }
+    ]
   }
 })
 

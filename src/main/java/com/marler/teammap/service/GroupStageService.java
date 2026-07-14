@@ -25,4 +25,9 @@ public interface GroupStageService {
      * 查询小组详情（包含球队成绩）
      */
     GroupStageDetailVO getDetail(Integer id);
+
+    /**
+     * 删除小组（同时删除已分配的球队关联）
+     */
+    void deleteGroup(Integer id);
 }

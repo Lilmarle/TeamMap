@@ -23,7 +23,7 @@
         label-position="top"
       >
         <el-form-item label="小组名称" prop="name">
-          <el-input v-model="singleForm.name" placeholder="如：A组、B组" maxlength="100" />
+          <el-input v-focus v-model="singleForm.name" placeholder="如：A组、B组" maxlength="100" />
         </el-form-item>
         <el-form-item label="球队总数" prop="teamCount">
           <el-input-number v-model="singleForm.teamCount" :min="2" :max="32" />

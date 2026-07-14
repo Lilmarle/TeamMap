@@ -1,53 +1,59 @@
 <template>
   <div class="area-header">
     <div class="header-left">
-      <h2 class="area-title">我的赛事</h2>
-      <el-select
-        :model-value="selectedEventId"
-        placeholder="请选择赛事"
-        size="default"
-        class="event-select"
-        :loading="loading"
-        @change="$emit('update:selectedEventId', $event)"
-      >
-        <el-option
-          v-for="event in events"
-          :key="event.id"
-          :label="event.name"
-          :value="event.id"
+      <slot name="title">
+        <h2 class="area-title">我的赛事</h2>
+      </slot>
+      <slot name="selector">
+        <el-select
+          :model-value="selectedEventId"
+          placeholder="请选择赛事"
+          size="default"
+          class="event-select"
+          :loading="loading"
+          @change="$emit('update:selectedEventId', $event)"
         >
-          <span class="event-option-label">{{ event.name }}</span>
-          <el-tag
-            :type="getStatusTagType(event.status)"
-            size="small"
-            class="event-option-tag"
+          <el-option
+            v-for="event in events"
+            :key="event.id"
+            :label="event.name"
+            :value="event.id"
           >
-            {{ getStatusName(event.status) }}
-          </el-tag>
-        </el-option>
-      </el-select>
+            <span v-ellipsis-tooltip class="event-option-label">{{ event.name }}</span>
+            <el-tag
+              :type="getStatusTagType(event.status)"
+              size="small"
+              class="event-option-tag"
+            >
+              {{ getStatusName(event.status) }}
+            </el-tag>
+          </el-option>
+        </el-select>
+      </slot>
     </div>
 
     <div class="header-actions">
-      <el-button
-        type="primary"
-        :icon="UserFilled"
-        :disabled="!selectedEventId"
-        @click="$emit('invite')"
-      >
-        邀请球队
-      </el-button>
-      <el-button
-        type="danger"
-        :icon="Delete"
-        :disabled="!selectedEventId"
-        @click="$emit('delete')"
-      >
-        删除赛事
-      </el-button>
-      <el-button type="primary" :icon="Plus" @click="$emit('add')">
-        添加赛事
-      </el-button>
+      <slot name="actions">
+        <el-button
+          type="primary"
+          :icon="UserFilled"
+          :disabled="!selectedEventId"
+          @click="$emit('invite')"
+        >
+          邀请球队
+        </el-button>
+        <el-button
+          type="danger"
+          :icon="Delete"
+          :disabled="!selectedEventId"
+          @click="$emit('delete')"
+        >
+          删除赛事
+        </el-button>
+        <el-button type="primary" :icon="Plus" @click="$emit('add')">
+          添加赛事
+        </el-button>
+      </slot>
     </div>
   </div>
 </template>

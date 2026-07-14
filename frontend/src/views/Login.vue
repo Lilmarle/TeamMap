@@ -11,6 +11,7 @@
       >
         <el-form-item prop="username">
           <el-input
+            v-focus
             v-model="loginForm.username"
             placeholder="用户名"
             prefix-icon="User"

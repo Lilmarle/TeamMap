@@ -1,9 +1,8 @@
 <template>
   <div class="group-stage-container">
     <!-- 顶部工具栏 -->
-    <div class="toolbar">
-      <span class="toolbar-title">小组赛管理</span>
-      <div class="toolbar-actions">
+    <PageHeader title="小组赛管理">
+      <template #actions>
         <el-button
           size="small"
           type="success"
@@ -15,39 +14,24 @@
         <el-button type="primary" size="small" @click="showCreateDialog = true">
           创建小组
         </el-button>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
-    <!-- 加载状态 -->
-    <div v-if="loadingGroups" class="loading-container">
-      <el-skeleton :rows="3" animated />
-    </div>
-
-    <!-- 加载失败 -->
-    <el-alert
-      v-else-if="loadFailed"
-      title="加载失败"
-      type="error"
-      :description="errorMessage"
-      show-icon
-      closable
-      @close="loadFailed = false"
+    <AsyncContent
+      :loading="loadingGroups"
+      :load-failed="loadFailed"
+      :error-message="errorMessage"
+      :is-empty="groupStages.length === 0"
+      empty-description="暂未创建小组"
+      :empty-image-size="80"
+      @retry="fetchGroupStages"
+      @update:load-failed="loadFailed = $event"
     >
-      <template #actions>
-        <el-button size="small" type="primary" @click="fetchGroupStages">重试</el-button>
-      </template>
-    </el-alert>
-
-    <!-- 空状态 -->
-    <el-empty v-else-if="groupStages.length === 0" description="暂未创建小组" :image-size="80">
-      <template #description>
+      <template #empty>
         <span>暂未创建小组，请点击上方按钮创建</span>
+        <el-button type="primary" @click="showCreateDialog = true">创建小组</el-button>
       </template>
-      <el-button type="primary" @click="showCreateDialog = true">创建小组</el-button>
-    </el-empty>
 
-    <!-- 小组卡片列表 -->
-    <template v-else>
       <div class="group-cards">
         <EventGroupCard
           v-for="group in groupStages"
@@ -57,9 +41,10 @@
           :tournament-teams="tournamentTeams"
           @refresh="fetchGroupStages"
           @assign-team="openAssignDialog"
+          @delete-group="handleDeleteGroup"
         />
       </div>
-    </template>
+    </AsyncContent>
 
     <!-- 创建小组对话框（支持单个/批量创建） -->
     <EventGroupCreateDialog
@@ -83,6 +68,9 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import { tournamentApi } from '@/api/tournament'
+import { ElMessage } from 'element-plus'
+import PageHeader from '@/components/General/PageHeader.vue'
+import AsyncContent from '@/components/General/AsyncContent.vue'
 import EventGroupCard from './EventGroupCard.vue'
 import EventGroupCreateDialog from './EventGroupCreateDialog.vue'
 import EventGroupAssign from './EventGroupAssign.vue'
@@ -161,6 +149,17 @@ function openAssignDialog(group) {
   showAssignDialog.value = true
 }
 
+/** 删除小组（取消分组） */
+async function handleDeleteGroup(group) {
+  try {
+    await tournamentApi.deleteGroupStage(group.id)
+    ElMessage.success(`已取消分组「${group.name}」，已分配的球队已移除`)
+    await fetchGroupStages()
+  } catch (e) {
+    ElMessage.error(e.message || '取消分组失败')
+  }
+}
+
 // 监听 tournamentId 变化
 watch(() => props.tournamentId, (newId) => {
   if (newId) {
@@ -174,31 +173,6 @@ watch(() => props.tournamentId, (newId) => {
 <style scoped>
 .group-stage-container {
   min-height: 200px;
-}
-
-/* ---- 工具栏 ---- */
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.toolbar-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-text-primary, #303133);
-}
-
-.toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* ---- 加载状态 ---- */
-.loading-container {
-  padding: 20px 0;
 }
 
 /* ---- 小组卡片列表（网格：每行两张） ---- */

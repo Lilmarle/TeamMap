@@ -1,10 +1,10 @@
 <template>
   <div class="event-show-area">
-    <div class="area-header">
-      <h2 class="area-title">赛事管理</h2>
-      <div class="header-actions">
+    <PageHeader title="赛事管理">
+      <template #actions>
         <el-input
           v-model="searchKeyword"
+          v-debounce:300="onSearchInput"
           placeholder="搜索赛事名称..."
           :prefix-icon="Search"
           clearable
@@ -28,45 +28,30 @@
           />
         </el-select>
         <el-button type="primary" :icon="Plus" @click="handleAdd">添加赛事</el-button>
-      </div>
-    </div>
-
-    <!-- 加载状态 -->
-    <div v-if="loading" class="loading-container">
-      <el-skeleton :rows="3" animated />
-    </div>
-
-    <!-- 错误状态 -->
-    <el-alert
-      v-else-if="loadFailed"
-      title="加载失败"
-      type="error"
-      :description="errorMessage"
-      show-icon
-      closable
-      @close="loadFailed = false"
-    >
-      <template #actions>
-        <el-button size="small" type="primary" @click="fetchEvents">重试</el-button>
       </template>
-    </el-alert>
+    </PageHeader>
 
-    <!-- 搜索结果为空 -->
-    <el-empty v-else-if="filteredEvents.length === 0" :description="searchKeyword ? '未匹配到相关赛事' : '暂无赛事数据'" />
-
-    <!-- 赛事表格 -->
-    <el-table
-      v-else
-      :data="filteredEvents"
-      border
-      stripe
-      style="width: 100%"
-      size="default"
-      row-key="id"
-      class="event-table"
+    <AsyncContent
+      :loading="loading"
+      :load-failed="loadFailed"
+      :error-message="errorMessage"
+      :is-empty="filteredEvents.length === 0"
+      :empty-description="searchKeyword ? '未匹配到相关赛事' : '暂无赛事数据'"
+      @retry="fetchEvents"
+      @update:load-failed="loadFailed = $event"
     >
-      <EventCard :onEdit="handleEdit" :onDelete="handleDelete" />
-    </el-table>
+      <el-table
+        :data="filteredEvents"
+        border
+        stripe
+        style="width: 100%"
+        size="default"
+        row-key="id"
+        class="event-table"
+      >
+        <EventCard :onEdit="handleEdit" :onDelete="handleDelete" />
+      </el-table>
+    </AsyncContent>
 
     <!-- 添加赛事对话框 -->
     <AddEvent ref="addEventRef" @success="fetchEvents" />
@@ -78,6 +63,8 @@ import { ref, computed, onMounted } from 'vue'
 import { tournamentApi } from '@/api/tournament'
 import { ElMessage } from 'element-plus'
 import { Plus, Search } from '@element-plus/icons-vue'
+import PageHeader from '@/components/General/PageHeader.vue'
+import AsyncContent from '@/components/General/AsyncContent.vue'
 import EventCard from './EventCard.vue'
 import AddEvent from '@/components/General/AddEvent.vue'
 
@@ -89,6 +76,14 @@ const searchKeyword = ref('')
 const filterType = ref('')
 const filterStatus = ref('')
 const addEventRef = ref(null)
+
+/** 防抖后的搜索关键词（由 v-debounce 更新） */
+const debouncedKeyword = ref('')
+
+/** 搜索输入防抖回调 */
+function onSearchInput(value) {
+  debouncedKeyword.value = value
+}
 
 /**
  * 运动类型名称映射
@@ -134,8 +129,8 @@ const statusOptions = computed(() => {
 const filteredEvents = computed(() => {
   let result = events.value
 
-  // 关键词模糊搜索（赛事名称）
-  const keyword = searchKeyword.value.trim().toLowerCase()
+  // 关键词模糊搜索（赛事名称）—— 使用防抖后的关键词
+  const keyword = debouncedKeyword.value.trim().toLowerCase()
   if (keyword) {
     result = result.filter(event => {
       return event.name?.toLowerCase().includes(keyword)
@@ -196,28 +191,7 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.area-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.area-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .search-input {
@@ -226,10 +200,6 @@ onMounted(() => {
 
 .filter-select {
   width: 140px;
-}
-
-.loading-container {
-  padding: 40px;
 }
 
 /* 赛事表格样式 */

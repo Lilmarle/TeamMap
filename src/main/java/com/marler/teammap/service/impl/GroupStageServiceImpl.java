@@ -155,4 +155,23 @@ public class GroupStageServiceImpl implements GroupStageService {
         log.info("查询小组详情成功 - id: {}, name: {}, teams: {}", id, groupStage.getName(), teamScores.size());
         return vo;
     }
+
+    @Override
+    @Transactional
+    public void deleteGroup(Integer id) {
+        // 1. 先检查小组是否存在
+        GroupStage groupStage = groupStageMapper.selectById(id);
+        if (groupStage == null) {
+            log.warn("删除小组失败：小组不存在 - id: {}", id);
+            throw new RuntimeException("小组不存在");
+        }
+
+        // 2. 删除小组关联的球队（group_stage_team）
+        groupStageTeamMapper.deleteByGroupStageId(id);
+        log.info("删除小组[{}]的球队关联成功", id);
+
+        // 3. 删除小组本身
+        groupStageMapper.deleteById(id);
+        log.info("删除小组成功 - id: {}, name: {}", id, groupStage.getName());
+    }
 }

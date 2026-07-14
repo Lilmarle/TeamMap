@@ -11,65 +11,48 @@
       @add="handleAdd"
     />
 
-    <!-- 加载状态 -->
-    <div v-if="loading" class="loading-container">
-      <el-skeleton :rows="3" animated />
-    </div>
-
-    <!-- 错误状态 -->
-    <el-alert
-      v-else-if="loadFailed"
-      title="加载失败"
-      type="error"
-      :description="errorMessage"
-      show-icon
-      closable
-      @close="loadFailed = false"
+    <AsyncContent
+      :loading="loading"
+      :load-failed="loadFailed"
+      :error-message="errorMessage"
+      :is-empty="events.length === 0"
+      empty-description="暂未创建任何赛事，点击上方按钮添加"
+      @retry="fetchMyEvents"
+      @update:load-failed="loadFailed = $event"
     >
-      <template #actions>
-        <el-button size="small" type="primary" @click="fetchMyEvents">重试</el-button>
-      </template>
-    </el-alert>
+      <!-- 赛事详情标签页 -->
+      <EventTabs
+        v-model:activeTab="activeTab"
+        class="event-detail-area"
+      >
+        <template #teams>
+          <EventTeams
+            :teams="tournamentTeams"
+            :tournament-id="selectedEventId"
+            :loading="loadingTeams"
+            :load-failed="teamsLoadFailed"
+            :error-message="teamsErrorMessage"
+            @update:load-failed="teamsLoadFailed = $event"
+            @refresh="fetchTournamentTeams"
+          />
+        </template>
 
-    <!-- 空状态：未创建任何赛事 -->
-    <el-empty
-      v-else-if="events.length === 0"
-      description="暂未创建任何赛事，点击上方按钮添加"
-    />
+        <template #group>
+          <EventGroup
+            :tournament-id="selectedEventId"
+            :tournament-teams="tournamentTeams"
+          />
+        </template>
 
-    <!-- 赛事详情标签页 -->
-    <EventTabs
-      v-else
-      v-model:activeTab="activeTab"
-      class="event-detail-area"
-    >
-      <template #teams>
-        <EventTeams
-          :teams="tournamentTeams"
-          :tournament-id="selectedEventId"
-          :loading="loadingTeams"
-          :load-failed="teamsLoadFailed"
-          :error-message="teamsErrorMessage"
-          @update:load-failed="teamsLoadFailed = $event"
-          @refresh="fetchTournamentTeams"
-        />
-      </template>
+        <template #knockout>
+          <EventKnockout />
+        </template>
 
-      <template #group>
-        <EventGroup
-          :tournament-id="selectedEventId"
-          :tournament-teams="tournamentTeams"
-        />
-      </template>
-
-      <template #knockout>
-        <EventKnockout />
-      </template>
-
-      <template #schedule>
-        <EventSchedule />
-      </template>
-    </EventTabs>
+        <template #schedule>
+          <EventSchedule />
+        </template>
+      </EventTabs>
+    </AsyncContent>
 
     <!-- 添加赛事对话框 -->
     <AddEvent ref="addEventRef" @success="handleAddSuccess" />
@@ -87,6 +70,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { tournamentApi } from '@/api/tournament'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import AsyncContent from '@/components/General/AsyncContent.vue'
 import EventToolbar from './EventToolbar.vue'
 import EventTabs from './EventTabs.vue'
 import EventTeams from './EventTeams.vue'
@@ -250,13 +234,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-/* ---- 加载状态 ---- */
-.loading-container {
-  padding: 40px;
-  background: var(--color-bg-white);
-  border-radius: 8px;
 }
 
 /* ---- 赛事详情区域 ---- */

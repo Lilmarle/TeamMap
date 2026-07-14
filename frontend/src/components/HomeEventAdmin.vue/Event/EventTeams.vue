@@ -1,30 +1,15 @@
 <template>
   <div class="teams-tab-content">
-    <!-- 加载状态 -->
-    <div v-if="loading" class="teams-loading">
-      <el-skeleton :rows="4" animated />
-    </div>
-
-    <!-- 加载失败 -->
-    <el-alert
-      v-else-if="loadFailed"
-      title="加载失败"
-      type="error"
-      :description="errorMessage"
-      show-icon
-      closable
-      @close="$emit('update:loadFailed', false)"
+    <AsyncContent
+      :loading="loading"
+      :load-failed="loadFailed"
+      :error-message="errorMessage"
+      :is-empty="teams.length === 0"
+      empty-description="暂无球队参与该赛事"
+      :skeleton-rows="4"
+      @update:load-failed="$emit('update:loadFailed', $event)"
+      @retry="$emit('refresh')"
     >
-      <template #actions>
-        <el-button size="small" type="primary" @click="$emit('refresh')">重试</el-button>
-      </template>
-    </el-alert>
-
-    <!-- 空状态 -->
-    <el-empty v-else-if="teams.length === 0" description="暂无球队参与该赛事" />
-
-    <!-- 球队列表 -->
-    <template v-else>
       <div class="teams-toolbar">
         <span class="teams-count">
           共 <strong>{{ teams.length }}</strong> 支球队
@@ -82,7 +67,7 @@
           </template>
         </el-table-column>
       </el-table>
-    </template>
+    </AsyncContent>
   </div>
 </template>
 
@@ -90,6 +75,7 @@
 import { Delete } from '@element-plus/icons-vue'
 import { tournamentApi } from '@/api/tournament'
 import { ElMessage } from 'element-plus'
+import AsyncContent from '@/components/General/AsyncContent.vue'
 
 /** 运动类型标签颜色映射 */
 const SPORT_TAG_MAP = { 1: '', 2: 'success', 3: 'warning' }
@@ -134,10 +120,6 @@ async function handleRemoveTeam(row) {
 <style scoped>
 .teams-tab-content {
   min-height: 200px;
-}
-
-.teams-loading {
-  padding: 20px 0;
 }
 
 .teams-toolbar {

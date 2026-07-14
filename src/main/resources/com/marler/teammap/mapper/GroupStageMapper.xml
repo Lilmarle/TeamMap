@@ -23,4 +23,8 @@
         SELECT * FROM group_stage WHERE tournament_id = #{tournamentId}
     </select>
 
+    <delete id="deleteById">
+        DELETE FROM group_stage WHERE id = #{id}
+    </delete>
+
 </mapper>

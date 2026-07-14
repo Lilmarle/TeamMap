@@ -14,4 +14,6 @@ public interface GroupStageTeamMapper {
     void insertBatch(List<GroupStageTeam> groupStageTeams);
 
     List<GroupStageTeam> selectByGroupStageId(@Param("groupStageId") Integer groupStageId);
+
+    void deleteByGroupStageId(@Param("groupStageId") Integer groupStageId);
 }

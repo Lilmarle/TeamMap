@@ -16,4 +16,6 @@ public interface GroupStageMapper {
     GroupStage selectById(@Param("id") Integer id);
 
     List<GroupStage> selectByTournamentId(@Param("tournamentId") Integer tournamentId);
+
+    void deleteById(@Param("id") Integer id);
 }
