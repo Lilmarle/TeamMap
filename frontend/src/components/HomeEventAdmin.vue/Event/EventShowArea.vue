@@ -11,48 +11,51 @@
       @add="handleAdd"
     />
 
-    <AsyncContent
-      :loading="loading"
-      :load-failed="loadFailed"
-      :error-message="errorMessage"
-      :is-empty="events.length === 0"
-      empty-description="暂未创建任何赛事，点击上方按钮添加"
-      @retry="fetchMyEvents"
-      @update:load-failed="loadFailed = $event"
-    >
-      <!-- 赛事详情标签页 -->
-      <EventTabs
-        v-model:activeTab="activeTab"
-        class="event-detail-area"
+    <!-- 使用 wrapper div 确保 flex:1 可靠生效 -->
+    <div class="async-wrapper">
+      <AsyncContent
+        :loading="loading"
+        :load-failed="loadFailed"
+        :error-message="errorMessage"
+        :is-empty="events.length === 0"
+        empty-description="暂未创建任何赛事，点击上方按钮添加"
+        @retry="fetchMyEvents"
+        @update:load-failed="loadFailed = $event"
       >
-        <template #teams>
-          <EventTeams
-            :teams="tournamentTeams"
-            :tournament-id="selectedEventId"
-            :loading="loadingTeams"
-            :load-failed="teamsLoadFailed"
-            :error-message="teamsErrorMessage"
-            @update:load-failed="teamsLoadFailed = $event"
-            @refresh="fetchTournamentTeams"
-          />
-        </template>
+        <!-- 赛事详情标签页 -->
+        <EventTabs
+          v-model:activeTab="activeTab"
+          class="event-detail-area"
+        >
+          <template #teams>
+            <EventTeams
+              :teams="tournamentTeams"
+              :tournament-id="selectedEventId"
+              :loading="loadingTeams"
+              :load-failed="teamsLoadFailed"
+              :error-message="teamsErrorMessage"
+              @update:load-failed="teamsLoadFailed = $event"
+              @refresh="fetchTournamentTeams"
+            />
+          </template>
 
-        <template #group>
-          <EventGroup
-            :tournament-id="selectedEventId"
-            :tournament-teams="tournamentTeams"
-          />
-        </template>
+          <template #group>
+            <EventGroup
+              :tournament-id="selectedEventId"
+              :tournament-teams="tournamentTeams"
+            />
+          </template>
 
-        <template #knockout>
-          <EventKnockout />
-        </template>
+          <template #knockout>
+            <EventKnockout />
+          </template>
 
-        <template #schedule>
-          <EventSchedule />
-        </template>
-      </EventTabs>
-    </AsyncContent>
+          <template #schedule>
+            <EventSchedule :tournament-id="selectedEventId" />
+          </template>
+        </EventTabs>
+      </AsyncContent>
+    </div>
 
     <!-- 添加赛事对话框 -->
     <AddEvent ref="addEventRef" @success="handleAddSuccess" />
@@ -234,6 +237,25 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow: hidden;
+}
+
+/* 让 AsyncContent 参与 flex 撑满剩余空间，修复高度链断裂 */
+.async-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Vue 3 中父组件 scoped 样式可以影响子组件根元素，无需 :deep() */
+.async-wrapper .async-content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---- 赛事详情区域 ---- */

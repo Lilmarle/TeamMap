@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.marler.teammap.mapper.MatchMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `match` (tournament_id, group_stage_id, team1_id, team2_id, team1_score, team2_score, status, stage, match_time, location)
+        VALUES (#{tournamentId}, #{groupStageId}, #{team1Id}, #{team2Id}, #{team1Score}, #{team2Score}, #{status}, #{stage}, #{matchTime}, #{location})
+    </insert>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `match` (tournament_id, group_stage_id, team1_id, team2_id, team1_score, team2_score, status, stage, match_time, location)
+        VALUES
+        <foreach collection="list" item="match" separator=",">
+            (#{match.tournamentId}, #{match.groupStageId}, #{match.team1Id}, #{match.team2Id}, #{match.team1Score}, #{match.team2Score}, #{match.status}, #{match.stage}, #{match.matchTime}, #{match.location})
+        </foreach>
+    </insert>
+
+    <select id="selectById" resultType="com.marler.teammap.pojo.Match">
+        SELECT * FROM `match` WHERE id = #{id}
+    </select>
+
+    <select id="selectByTournamentId" resultType="com.marler.teammap.pojo.Match">
+        SELECT * FROM `match` WHERE tournament_id = #{tournamentId} ORDER BY match_time ASC, id ASC
+    </select>
+
+    <select id="selectByTeamId" resultType="com.marler.teammap.pojo.Match">
+        SELECT * FROM `match` WHERE team1_id = #{teamId} OR team2_id = #{teamId} ORDER BY match_time ASC, id ASC
+    </select>
+
+    <select id="selectByGroupStageId" resultType="com.marler.teammap.pojo.Match">
+        SELECT * FROM `match` WHERE group_stage_id = #{groupStageId} ORDER BY match_time ASC, id ASC
+    </select>
+
+    <update id="updateById">
+        UPDATE `match`
+        <set>
+            <if test="team1Score != null">team1_score = #{team1Score},</if>
+            <if test="team2Score != null">team2_score = #{team2Score},</if>
+            <if test="status != null">`status` = #{status},</if>
+            <if test="stage != null">stage = #{stage},</if>
+            <if test="groupStageId != null">group_stage_id = #{groupStageId},</if>
+            <if test="matchTime != null">match_time = #{matchTime},</if>
+            <if test="location != null">location = #{location},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteByGroupStageId">
+        DELETE FROM `match` WHERE group_stage_id = #{groupStageId}
+    </delete>
+
+</mapper>

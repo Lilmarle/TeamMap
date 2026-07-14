@@ -97,20 +97,30 @@ function handleTabClick(tab) {
   height: 100%;
   display: flex;
   flex-direction: column;
+  /* 关键：阻止 flex 项目按内容高度撑开父容器 */
+  min-height: 0;
 }
 
 .tabs-container {
   flex: 1;
   display: flex;
   flex-direction: column;
+  /* 关键：允许 flex 项目收缩到内容高度以下 */
+  min-height: 0;
 }
 
-.tabs-container :deep(.el-tabs__content) {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-}
+/* 使用非 scoped 样式确保 Element Plus 内部元素也被覆盖 */
+</style>
 
+<style>
+.tabs-container .el-tabs__content {
+  flex: 1 !important;
+  padding: 20px !important;
+  overflow-y: auto !important;
+}
+</style>
+
+<style scoped>
 .tab-label {
   display: inline-flex;
   align-items: center;

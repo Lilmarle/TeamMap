@@ -139,5 +139,36 @@ export const tournamentApi = {
    */
   assignTeamsToGroups(data) {
     return request.post('/group-stage-team/tournament', data)
+  },
+
+  // ==================== 赛程相关 ====================
+
+  /**
+   * 为指定小组生成赛程（Circle Method 图论轮转法）
+   * @param {number} groupStageId - 小组ID
+   * @param {Object} params - 可选参数 { startTime, intervalDays, matchIntervalMinutes, location }
+   * @returns {Promise}
+   */
+  generateGroupSchedule(groupStageId, params = {}) {
+    return request.post(`/group-stage/${groupStageId}/schedule`, params)
+  },
+
+  /**
+   * 获取某小组的所有比赛
+   * @param {number} groupStageId - 小组ID
+   * @returns {Promise}
+   */
+  getGroupStageMatches(groupStageId) {
+    return request.get(`/match/group-stage/${groupStageId}`)
+  },
+
+  /**
+   * 为整个赛事所有小组统一生成赛程（跨小组排期）
+   * @param {number} tournamentId - 赛事ID
+   * @param {Object} params - 可选参数 { startTime, matchIntervalMinutes, location }
+   * @returns {Promise}
+   */
+  generateAllGroupSchedules(tournamentId, params = {}) {
+    return request.post(`/group-stage/tournament/${tournamentId}/schedule`, params)
   }
 }

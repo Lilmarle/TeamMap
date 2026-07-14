@@ -70,6 +70,13 @@ public class TeamServiceImpl implements TeamService {
         return teamMapper.selectAllFromView();
     }
 
+    // 根据ID查询球队
+    @Override
+    public Team getById(Long id) {
+        log.info("根据ID查询球队 - id: {}", id);
+        return teamMapper.selectById(id);
+    }
+
     // 根据运动类型查询球队
     @Override
     public List<Team> getTeamsByType(Integer type) {

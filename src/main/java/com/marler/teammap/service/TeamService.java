@@ -23,4 +23,6 @@ public interface TeamService {
      * @return 球队列表
      */
     List<Team> getTeamsByType(Integer type);
+
+    Team getById(Long id);
 }

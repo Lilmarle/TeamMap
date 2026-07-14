@@ -3,7 +3,9 @@ package com.marler.teammap.controller;
 import com.marler.teammap.common.Result;
 import com.marler.teammap.dto.request.AddGroupStageRequest;
 import com.marler.teammap.dto.request.BatchAddGroupStageRequest;
+import com.marler.teammap.dto.request.GenerateGroupScheduleRequest;
 import com.marler.teammap.dto.response.GroupStageDetailVO;
+import com.marler.teammap.dto.response.MatchDetailVO;
 import com.marler.teammap.pojo.GroupStage;
 import com.marler.teammap.pojo.Tournament;
 import com.marler.teammap.service.GroupStageService;
@@ -271,6 +273,121 @@ public class GroupStageController {
             return Result.success("小组已取消，已分配的球队已移除");
         } catch (RuntimeException e) {
             log.warn("删除小组失败：{}", e.getMessage());
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 为指定小组生成赛程（利用图结构轮转法 / Circle Method）
+     * POST /api/group-stage/{id}/schedule
+     * <p>
+     * 请求体示例：
+     * {
+     *   "startTime": "2026-07-20 14:00:00",
+     *   "intervalDays": 1,
+     *   "matchIntervalMinutes": 30,
+     *   "location": "体育馆"
+     * }
+     * <p>
+     * 说明：会先清除该小组已有的赛程，再重新生成。
+     * 根据小组的 roundType（单循环/双循环）自动确定轮次。
+     */
+    @PostMapping("/{id}/schedule")
+    public Result<?> generateSchedule(@PathVariable Integer id,
+                                       @RequestBody(required = false) GenerateGroupScheduleRequest request,
+                                       @RequestHeader("Authorization") String authHeader) {
+        log.info("生成小组赛程请求 - groupStageId: {}", id);
+
+        // 1. Token 校验
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("生成赛程失败：未登录");
+            return Result.error("未登录");
+        }
+
+        // 2. 解析 Token
+        Claims claims;
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            claims = JwtUtil.parseToken(token);
+        } catch (Exception e) {
+            log.warn("生成赛程失败：Token无效 - {}", e.getMessage());
+            return Result.error("token无效或已过期");
+        }
+
+        Integer role = claims.get("role", Integer.class);
+        Long userId = Long.valueOf(claims.getSubject());
+
+        // 3. 权限校验：role >= 3 才能操作
+        if (role == null || role < 3) {
+            log.warn("生成赛程失败：权限不足 - userId: {}, role: {}", userId, role);
+            return Result.error("权限不足，需要赛事管理员或系统管理员角色");
+        }
+
+        // 4. 执行生成
+        try {
+            if (request == null) {
+                request = new GenerateGroupScheduleRequest();
+            }
+            List<MatchDetailVO> schedule = groupStageService.generateSchedule(id, request);
+            log.info("生成小组赛程成功 - groupStageId: {}, 共 {} 场比赛", id, schedule.size());
+            return Result.success(schedule);
+        } catch (RuntimeException e) {
+            log.warn("生成赛程失败：{}", e.getMessage());
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 为整个赛事的所有小组统一生成赛程（跨小组排期，每天最多3场）
+     * POST /api/group-stage/tournament/{tournamentId}/schedule
+     * <p>
+     * 请求体同生成单小组赛程：
+     * {
+     *   "startTime": "2026-07-20 14:00:00",
+     *   "matchIntervalMinutes": 30,
+     *   "location": "体育馆"
+     * }
+     * <p>
+     * 特点：将所有小组的比赛合并后统一分配时间，确保每天不超过3场，
+     * 且跨所有小组全局排期，周末自动跳过。
+     */
+    @PostMapping("/tournament/{tournamentId}/schedule")
+    public Result<?> generateAllSchedules(@PathVariable Integer tournamentId,
+                                           @RequestBody(required = false) GenerateGroupScheduleRequest request,
+                                           @RequestHeader("Authorization") String authHeader) {
+        log.info("全局排赛程请求 - tournamentId: {}", tournamentId);
+
+        // 1. Token 校验
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return Result.error("未登录");
+        }
+
+        // 2. 解析 Token
+        Claims claims;
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            claims = JwtUtil.parseToken(token);
+        } catch (Exception e) {
+            return Result.error("token无效或已过期");
+        }
+
+        Integer role = claims.get("role", Integer.class);
+        Long userId = Long.valueOf(claims.getSubject());
+
+        if (role == null || role < 3) {
+            return Result.error("权限不足，需要赛事管理员或系统管理员角色");
+        }
+
+        // 3. 执行
+        try {
+            if (request == null) {
+                request = new GenerateGroupScheduleRequest();
+            }
+            List<MatchDetailVO> schedule = groupStageService.generateAllSchedules(tournamentId, request);
+            log.info("全局排赛程成功 - tournamentId: {}, 共 {} 场比赛", tournamentId, schedule.size());
+            return Result.success(schedule);
+        } catch (RuntimeException e) {
+            log.warn("全局排赛程失败：{}", e.getMessage());
             return Result.error(e.getMessage());
         }
     }
