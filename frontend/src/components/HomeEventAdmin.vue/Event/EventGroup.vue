@@ -39,9 +39,9 @@
           :group-stage="group"
           :tournament-id="tournamentId"
           :tournament-teams="tournamentTeams"
+          :is-selected="selectedGroup?.id === group.id"
           @refresh="fetchGroupStages"
-          @assign-team="openAssignDialog"
-          @delete-group="handleDeleteGroup"
+          @select-group="handleSelectGroup"
         />
       </div>
     </AsyncContent>
@@ -86,6 +86,9 @@ const groupStages = ref([])
 const loadingGroups = ref(false)
 const loadFailed = ref(false)
 const errorMessage = ref('')
+
+/** 当前选中的分组（用于工具栏操作） */
+const selectedGroup = ref(null)
 
 /** 创建小组对话框 */
 const showCreateDialog = ref(false)
@@ -143,7 +146,16 @@ async function fetchAllGroupTeamIds() {
   allGroupTeamIds.value = map
 }
 
-/** 打开分配球队对话框 */
+/** 选中/取消选中分组 */
+function handleSelectGroup(group) {
+  if (selectedGroup.value?.id === group.id) {
+    selectedGroup.value = null
+  } else {
+    selectedGroup.value = group
+  }
+}
+
+/** 打开分配球队对话框（支持传入目标分组） */
 function openAssignDialog(group) {
   assignTargetGroup.value = group || null
   showAssignDialog.value = true
@@ -159,6 +171,13 @@ async function handleDeleteGroup(group) {
     ElMessage.error(e.message || '取消分组失败')
   }
 }
+
+// 暴露给父组件的方法和状态（供工具栏操作使用）
+defineExpose({
+  selectedGroup,
+  openAssignDialog,
+  handleDeleteGroup
+})
 
 // 监听 tournamentId 变化
 watch(() => props.tournamentId, (newId) => {

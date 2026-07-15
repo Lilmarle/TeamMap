@@ -34,6 +34,32 @@
 
     <div class="header-actions">
       <slot name="actions">
+        <!-- 分组操作按钮（仅在选中分组时显示） -->
+        <template v-if="showGroupActions && selectedGroupStage">
+          <el-divider direction="vertical" class="action-divider" />
+          <span class="action-group-name">{{ selectedGroupStage.name }}</span>
+          <el-popconfirm
+            title="确定取消此分组？已分配的球队将被移除。"
+            confirm-button-text="确定"
+            cancel-button-text="取消"
+            @confirm="$emit('delete-group', selectedGroupStage)"
+          >
+            <template #reference>
+              <el-button size="small" type="danger" plain>
+                取消分组
+              </el-button>
+            </template>
+          </el-popconfirm>
+          <el-button
+            size="small"
+            type="primary"
+            @click="$emit('assign-team', selectedGroupStage)"
+          >
+            分配球队
+          </el-button>
+          <el-divider direction="vertical" class="action-divider" />
+        </template>
+
         <el-button
           type="primary"
           :icon="UserFilled"
@@ -64,10 +90,14 @@ import { Plus, Delete, UserFilled } from '@element-plus/icons-vue'
 defineProps({
   events: { type: Array, default: () => [] },
   selectedEventId: { type: [Number, null], default: null },
-  loading: { type: Boolean, default: false }
+  loading: { type: Boolean, default: false },
+  /** 是否显示分组操作按钮 */
+  showGroupActions: { type: Boolean, default: false },
+  /** 当前选中的分组阶段 */
+  selectedGroupStage: { type: Object, default: null }
 })
 
-defineEmits(['update:selectedEventId', 'invite', 'delete', 'add'])
+defineEmits(['update:selectedEventId', 'invite', 'delete', 'add', 'assign-team', 'delete-group'])
 
 function getStatusName(status) {
   switch (status) {
@@ -134,5 +164,16 @@ function getStatusTagType(status) {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.action-divider {
+  height: 24px;
+}
+
+.action-group-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary, #303133);
+  white-space: nowrap;
 }
 </style>

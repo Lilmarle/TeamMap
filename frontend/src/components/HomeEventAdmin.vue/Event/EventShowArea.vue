@@ -5,10 +5,14 @@
       :events="events"
       :selected-event-id="selectedEventId"
       :loading="loading"
+      :show-group-actions="showGroupActions"
+      :selected-group-stage="selectedGroupStage"
       @update:selected-event-id="handleEventChange"
       @invite="handleInvite"
       @delete="handleDelete"
       @add="handleAdd"
+      @assign-team="handleToolbarAssignTeam"
+      @delete-group="handleToolbarDeleteGroup"
     />
 
     <!-- 使用 wrapper div 确保 flex:1 可靠生效 -->
@@ -41,6 +45,7 @@
 
           <template #group>
             <EventGroup
+              ref="eventGroupRef"
               :tournament-id="selectedEventId"
               :tournament-teams="tournamentTeams"
             />
@@ -70,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { tournamentApi } from '@/api/tournament'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import AsyncContent from '@/components/General/AsyncContent.vue'
@@ -92,6 +97,17 @@ const loadFailed = ref(false)
 const errorMessage = ref('')
 const addEventRef = ref(null)
 const eventInviteRef = ref(null)
+const eventGroupRef = ref(null)
+
+/** 是否显示分组操作按钮（仅在小组赛标签页且已选中分组时显示） */
+const showGroupActions = computed(() => {
+  return activeTab.value === 'group' && !!selectedGroupStage.value
+})
+
+/** 当前选中的分组阶段（从 EventGroup 组件获取） */
+const selectedGroupStage = computed(() => {
+  return eventGroupRef.value?.selectedGroup || null
+})
 
 /** 参赛球队相关状态 */
 const tournamentTeams = ref([])
@@ -215,6 +231,16 @@ function handleInviteSuccess() {
   ElMessage.success('球队邀请成功')
   fetchMyEvents()
   fetchTournamentTeams()
+}
+
+/** 工具栏「分配球队」按钮回调 - 转发给 EventGroup 组件 */
+function handleToolbarAssignTeam(group) {
+  eventGroupRef.value?.openAssignDialog(group)
+}
+
+/** 工具栏「取消分组」按钮回调 - 转发给 EventGroup 组件 */
+function handleToolbarDeleteGroup(group) {
+  eventGroupRef.value?.handleDeleteGroup(group)
 }
 
 // 当选中的赛事 ID 变化时，加载该赛事的参赛球队

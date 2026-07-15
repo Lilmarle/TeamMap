@@ -16,22 +16,14 @@
           </el-tag>
         </div>
       </div>
-      <div class="group-header-actions">
-        <el-popconfirm
-          title="确定取消此分组？已分配的球队将被移除。"
-          confirm-button-text="确定"
-          cancel-button-text="取消"
-          @confirm="$emit('delete-group', groupStage)"
-        >
-          <template #reference>
-            <el-button size="small" type="danger" plain>
-              取消分组
-            </el-button>
-          </template>
-        </el-popconfirm>
-        <el-button size="small" type="primary" @click="$emit('assign-team', groupStage)">
-          分配球队
-        </el-button>
+      <div
+        class="group-select-indicator"
+        :class="{ 'is-selected': isSelected }"
+        @click="$emit('select-group', groupStage)"
+      >
+        <el-tag :type="isSelected ? 'primary' : 'info'" size="small" effect="plain">
+          {{ isSelected ? '已选中' : '点击选中' }}
+        </el-tag>
       </div>
     </div>
 
@@ -97,10 +89,12 @@ const props = defineProps({
   groupStage: { type: Object, required: true },
   tournamentId: { type: Number, required: true },
   /** 赛事中所有已通过的球队（用于分配球队时选择） */
-  tournamentTeams: { type: Array, default: () => [] }
+  tournamentTeams: { type: Array, default: () => [] },
+  /** 该分组是否处于选中状态（用于工具栏操作） */
+  isSelected: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['refresh', 'assign-team', 'delete-group'])
+const emit = defineEmits(['refresh', 'select-group'])
 
 /** 小组内球队列表及成绩 */
 const groupTeams = ref([])
@@ -196,6 +190,24 @@ watch(() => props.groupStage?.id, (newId) => {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* ---- 分组选中指示器 ---- */
+.group-select-indicator {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.group-select-indicator:hover {
+  background-color: var(--color-bg-page, #f5f7fa);
+}
+
+.group-select-indicator.is-selected {
+  background-color: rgba(64, 158, 255, 0.08);
 }
 
 /* ---- 球队列表加载 ---- */
