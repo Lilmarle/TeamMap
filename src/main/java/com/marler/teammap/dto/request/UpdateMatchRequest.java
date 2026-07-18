@@ -9,6 +9,7 @@ public class UpdateMatchRequest {
     private Integer status;         // 状态：1-未开始，2-进行中，3-已结束，4-结算中（可选）
     private Integer stage;          // 阶段（可选）
     private Integer groupStageId;   // 小组赛ID（可选，仅小组赛阶段使用）
+    private String name;            // 比赛名称（可选）
     private String matchTime;       // 比赛开始时间（可选）
     private String location;        // 比赛地点（可选）
 
@@ -50,6 +51,14 @@ public class UpdateMatchRequest {
 
     public void setGroupStageId(Integer groupStageId) {
         this.groupStageId = groupStageId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getMatchTime() {

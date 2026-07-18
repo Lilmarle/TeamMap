@@ -141,16 +141,34 @@ export const tournamentApi = {
     return request.post('/group-stage-team/tournament', data)
   },
 
-  // ==================== 赛程相关 ====================
+  // ==================== 比赛管理 ====================
 
   /**
-   * 为指定小组生成赛程（Circle Method 图论轮转法）
-   * @param {number} groupStageId - 小组ID
-   * @param {Object} params - 可选参数 { startTime, intervalDays, matchIntervalMinutes, location }
+   * 手动添加一场比赛（通用，可用于淘汰赛）
+   * @param {Object} data - { tournamentId, team1Id, team2Id, stage, name?, matchTime?, location? }
    * @returns {Promise}
    */
-  generateGroupSchedule(groupStageId, params = {}) {
-    return request.post(`/group-stage/${groupStageId}/schedule`, params)
+  addMatch(data) {
+    return request.post('/match', data)
+  },
+
+  /**
+   * 修改比赛信息（比分、状态等）
+   * @param {number} id - 比赛ID
+   * @param {Object} data - { team1Score?, team2Score?, status?, stage?, name?, matchTime?, location? }
+   * @returns {Promise}
+   */
+  updateMatch(id, data) {
+    return request.put(`/match/${id}`, data)
+  },
+
+  /**
+   * 获取某赛事的所有比赛
+   * @param {number} tournamentId - 赛事ID
+   * @returns {Promise}
+   */
+  getTournamentMatches(tournamentId) {
+    return request.get(`/match/tournament/${tournamentId}`)
   },
 
   /**
@@ -162,10 +180,22 @@ export const tournamentApi = {
     return request.get(`/match/group-stage/${groupStageId}`)
   },
 
+  // ==================== 赛程生成 ====================
+
   /**
-   * 为整个赛事所有小组统一生成赛程（跨小组排期）
+   * 为指定小组生成赛程
+   * @param {number} groupStageId - 小组ID
+   * @param {Object} params - { startTime, intervalDays, matchIntervalMinutes, location }
+   * @returns {Promise}
+   */
+  generateGroupSchedule(groupStageId, params = {}) {
+    return request.post(`/group-stage/${groupStageId}/schedule`, params)
+  },
+
+  /**
+   * 为整个赛事所有小组统一生成赛程
    * @param {number} tournamentId - 赛事ID
-   * @param {Object} params - 可选参数 { startTime, matchIntervalMinutes, location }
+   * @param {Object} params - { startTime, matchIntervalMinutes, location }
    * @returns {Promise}
    */
   generateAllGroupSchedules(tournamentId, params = {}) {

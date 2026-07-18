@@ -41,6 +41,16 @@ public class GroupStageServiceImpl implements GroupStageService {
 
     private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    /**
+     * 每天最大比赛场次
+     */
+    private static final int MAX_MATCHES_PER_DAY = 3;
+
+    /**
+     * 比赛间隔分钟数（与第一回合时段 {12, 14, 16} 的间隔一致）
+     */
+    private static final int MATCH_INTERVAL_MINUTES = 120;
+
     // ==================== 积分计算函数 ====================
 
     /**
@@ -346,6 +356,7 @@ public class GroupStageServiceImpl implements GroupStageService {
                 m.setTeam2Score(0);
                 m.setStatus(1);
                 m.setStage(2);
+                m.setName(groupStage.getName() + " 第" + (round + 1) + "轮");
                 roundMatches.add(m);
             }
 
@@ -371,6 +382,7 @@ public class GroupStageServiceImpl implements GroupStageService {
                     mirror.setTeam2Score(0);
                     mirror.setStatus(1);
                     mirror.setStage(2);
+                    mirror.setName(original.getName());
                     mirrorRound.add(mirror);
                 }
                 allRounds.add(mirrorRound);
@@ -485,7 +497,6 @@ public class GroupStageServiceImpl implements GroupStageService {
         LocalDateTime currentDay = skipWeekends(parseStartDate(request.getStartDate()));
         String location = request.getLocation();
         int matchesToday = 0;
-        int matchOrderInDay = 0;
 
         // 构建可变的球队列表（用于轮转）
         List<Integer> circle = new ArrayList<>(teamIds);
@@ -505,7 +516,6 @@ public class GroupStageServiceImpl implements GroupStageService {
                 if (matchesToday >= 3) {
                     currentDay = skipWeekends(currentDay.plusDays(1));
                     matchesToday = 0;
-                    matchOrderInDay = 0;
                 }
 
                 // 固定时段：第1场12:00、第2场14:00、第3场16:00
@@ -514,9 +524,9 @@ public class GroupStageServiceImpl implements GroupStageService {
                         .withMinute(0).withSecond(0).withNano(0);
 
                 Match m = buildMatch(groupStage, home, away, matchTime, location);
+                m.setName(groupStage.getName() + " 第" + (round + 1) + "轮");
                 allMatches.add(m);
                 matchesToday++;
-                matchOrderInDay++;
             }
 
             // 轮转
@@ -526,7 +536,6 @@ public class GroupStageServiceImpl implements GroupStageService {
             // 轮次结束后推进到下一周期的首日
             currentDay = skipWeekends(currentDay.plusDays(1));
             matchesToday = 0;
-            matchOrderInDay = 0;
         }
 
         // === 双循环处理 ===
@@ -550,6 +559,7 @@ public class GroupStageServiceImpl implements GroupStageService {
                 mirror.setTeam2Score(0);
                 mirror.setStatus(1);
                 mirror.setStage(2);
+                mirror.setName(original.getName());
                 mirror.setLocation(original.getLocation());
 
                 // 检查每天 3 场上限
@@ -560,11 +570,11 @@ public class GroupStageServiceImpl implements GroupStageService {
                 }
 
                 LocalDateTime matchTime = secondLegDay
-                        .withHour(parseStartTime(request.getStartTime()).getHour())
-                        .withMinute(parseStartTime(request.getStartTime()).getMinute())
+                        .withHour(12)
+                        .withMinute(0)
                         .withSecond(0)
                         .withNano(0)
-                        .plusMinutes((long) secondLegOrderInDay * matchIntervalMinutes);
+                        .plusMinutes((long) secondLegOrderInDay * MATCH_INTERVAL_MINUTES);
                 mirror.setMatchTime(matchTime.format(DT_FMT));
 
                 allMatches.add(mirror);
@@ -587,31 +597,6 @@ public class GroupStageServiceImpl implements GroupStageService {
             return dateTime.plusDays(1);
         }
         return dateTime;
-    }
-
-    /**
-     * 构建一场比赛对象
-     */
-    private Match buildMatch(GroupStage groupStage, int team1Id, int team2Id,
-                             int round, LocalDateTime baseTime, String location) {
-        Match match = new Match();
-        match.setTournamentId(groupStage.getTournamentId());
-        match.setGroupStageId(groupStage.getId());
-        // 使用 round 的奇偶性决定主客场，使每支球队的主客场尽量均衡
-        if (round % 2 == 1) {
-            match.setTeam1Id(team1Id);
-            match.setTeam2Id(team2Id);
-        } else {
-            match.setTeam1Id(team2Id);
-            match.setTeam2Id(team1Id);
-        }
-        match.setTeam1Score(0);
-        match.setTeam2Score(0);
-        match.setStatus(1);  // 未开始
-        match.setStage(2);   // 小组赛
-        match.setMatchTime(baseTime.format(DT_FMT));
-        match.setLocation(location);
-        return match;
     }
 
     /**

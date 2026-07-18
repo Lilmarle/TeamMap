@@ -3,15 +3,15 @@
 <mapper namespace="com.marler.teammap.mapper.MatchMapper">
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO `match` (tournament_id, group_stage_id, team1_id, team2_id, team1_score, team2_score, status, stage, match_time, location)
-        VALUES (#{tournamentId}, #{groupStageId}, #{team1Id}, #{team2Id}, #{team1Score}, #{team2Score}, #{status}, #{stage}, #{matchTime}, #{location})
+        INSERT INTO `match` (tournament_id, group_stage_id, `name`, team1_id, team2_id, team1_score, team2_score, status, stage, match_time, location)
+        VALUES (#{tournamentId}, #{groupStageId}, #{name}, #{team1Id}, #{team2Id}, #{team1Score}, #{team2Score}, #{status}, #{stage}, #{matchTime}, #{location})
     </insert>
 
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO `match` (tournament_id, group_stage_id, team1_id, team2_id, team1_score, team2_score, status, stage, match_time, location)
+        INSERT INTO `match` (tournament_id, group_stage_id, `name`, team1_id, team2_id, team1_score, team2_score, status, stage, match_time, location)
         VALUES
         <foreach collection="list" item="match" separator=",">
-            (#{match.tournamentId}, #{match.groupStageId}, #{match.team1Id}, #{match.team2Id}, #{match.team1Score}, #{match.team2Score}, #{match.status}, #{match.stage}, #{match.matchTime}, #{match.location})
+            (#{match.tournamentId}, #{match.groupStageId}, #{match.name}, #{match.team1Id}, #{match.team2Id}, #{match.team1Score}, #{match.team2Score}, #{match.status}, #{match.stage}, #{match.matchTime}, #{match.location})
         </foreach>
     </insert>
 
@@ -39,6 +39,7 @@
             <if test="status != null">`status` = #{status},</if>
             <if test="stage != null">stage = #{stage},</if>
             <if test="groupStageId != null">group_stage_id = #{groupStageId},</if>
+            <if test="name != null">`name` = #{name},</if>
             <if test="matchTime != null">match_time = #{matchTime},</if>
             <if test="location != null">location = #{location},</if>
         </set>
@@ -47,6 +48,10 @@
 
     <delete id="deleteByGroupStageId">
         DELETE FROM `match` WHERE group_stage_id = #{groupStageId}
+    </delete>
+
+    <delete id="deleteById">
+        DELETE FROM `match` WHERE id = #{id}
     </delete>
 
 </mapper>

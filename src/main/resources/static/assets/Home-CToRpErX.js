@@ -1,0 +1,1 @@
+import{o as t,g as a,R as s,c as r,u as c,a as _}from"./index-Dc3kmLq6.js";import{_ as n}from"./_plugin-vue_export-helper-DlAUqK2U.js";const m={class:"home"},l={__name:"Home",setup(p){const o=c();return t(()=>{const e=a();e&&s[e]?o.replace(s[e]):o.replace("/home/normal")}),(e,u)=>(_(),r("div",m))}},i=n(l,[["__scopeId","data-v-2b46a59c"]]);export{i as default};

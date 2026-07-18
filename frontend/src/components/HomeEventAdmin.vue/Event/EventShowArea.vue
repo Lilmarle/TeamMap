@@ -52,7 +52,10 @@
           </template>
 
           <template #knockout>
-            <EventKnockout />
+            <EventKnockout
+              :tournament-id="selectedEventId"
+              :teams="tournamentTeams"
+            />
           </template>
 
           <template #schedule>

@@ -6,6 +6,7 @@ package com.marler.teammap.dto.request;
 public class AddMatchRequest {
     private Integer tournamentId;   // 关联赛事ID
     private Integer groupStageId;   // 小组赛ID（仅小组赛阶段使用）
+    private String name;            // 比赛名称（如：A组第1轮 文学院 vs 外国语学院）
     private Integer team1Id;        // 队伍1ID
     private Integer team2Id;        // 队伍2ID
     private Integer team1Score;     // 队伍1得分（默认0）
@@ -29,6 +30,14 @@ public class AddMatchRequest {
 
     public void setGroupStageId(Integer groupStageId) {
         this.groupStageId = groupStageId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Integer getTeam1Id() {

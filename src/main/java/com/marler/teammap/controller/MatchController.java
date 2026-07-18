@@ -30,6 +30,9 @@ public class MatchController {
     @Autowired
     private TeamService teamService;
 
+    @Autowired
+    private com.marler.teammap.mapper.MatchMapper matchMapper;
+
     /**
      * 添加一场比赛
      * POST /api/match
@@ -221,5 +224,17 @@ public class MatchController {
         log.info("查询小组比赛列表 - groupStageId: {}", groupStageId);
         List<MatchDetailVO> list = matchService.listByGroupStage(groupStageId);
         return Result.success(list);
+    }
+
+    /**
+     * 删除比赛
+     * DELETE /api/match/{id}
+     */
+    @DeleteMapping("/{id}")
+    public Result<?> delete(@PathVariable Long id) {
+        log.info("删除比赛请求 - id: {}", id);
+        matchMapper.deleteById(id);
+        log.info("比赛删除成功 - id: {}", id);
+        return Result.success("比赛已删除");
     }
 }

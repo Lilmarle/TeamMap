@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 //        `team2_score` TINYINT(3) UNSIGNED DEFAULT 0 COMMENT '队伍2得分',
 //        `status` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态：1-未开始，2-进行中，3-已结束，4-结算中',
 //        `stage` TINYINT(1) UNSIGNED NOT NULL COMMENT '阶段：1-友谊赛，2-小组赛，3-附加赛 4-八分之一决赛，5-四分之一决赛，6-半决赛，7-三四名决赛，8-决赛',
+//        `name` VARCHAR(200) DEFAULT NULL COMMENT '比赛名称（如：A组第1轮 文学院 vs 外国语学院）',
 //        `match_time` DATETIME DEFAULT NULL COMMENT '比赛开始时间',
 //        `location` VARCHAR(200) DEFAULT NULL COMMENT '比赛地点',
 //        `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -36,6 +37,7 @@ public class Match {
     private Long id;                 // 比赛ID，主键
     private Integer tournamentId;    // 关联赛事ID，关联tournament表
     private Integer groupStageId;    // 小组赛ID，关联group_stage表（仅小组赛阶段使用）
+    private String name;             // 比赛名称（如：A组第1轮 文学院 vs 外国语学院）
     private Integer team1Id;         // 队伍1ID，关联team表
     private Integer team2Id;         // 队伍2ID，关联team表
     private Integer team1Score;      // 队伍1得分

@@ -3,7 +3,9 @@ package com.marler.teammap.service.impl;
 import com.marler.teammap.dto.request.AddMatchRequest;
 import com.marler.teammap.dto.request.UpdateMatchRequest;
 import com.marler.teammap.dto.response.MatchDetailVO;
+import com.marler.teammap.mapper.GroupStageMapper;
 import com.marler.teammap.mapper.MatchMapper;
+import com.marler.teammap.pojo.GroupStage;
 import com.marler.teammap.pojo.Match;
 import com.marler.teammap.pojo.Team;
 import com.marler.teammap.service.MatchService;
@@ -27,6 +29,9 @@ public class MatchServiceImpl implements MatchService {
     @Autowired
     private TeamService teamService;
 
+    @Autowired
+    private GroupStageMapper groupStageMapper;
+
     @Override
     @Transactional
     public Match add(AddMatchRequest request) {
@@ -48,6 +53,13 @@ public class MatchServiceImpl implements MatchService {
 
         // 小组赛ID（仅小组赛阶段使用）
         match.setGroupStageId(request.getGroupStageId());
+
+        // 比赛名称：如果未提供则自动生成
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            match.setName(request.getName());
+        } else {
+            match.setName(generateMatchName(request.getStage(), request.getGroupStageId()));
+        }
 
         // 比赛时间、地点不填默认为空
         match.setMatchTime(request.getMatchTime());
@@ -87,6 +99,9 @@ public class MatchServiceImpl implements MatchService {
         if (request.getGroupStageId() != null) {
             existing.setGroupStageId(request.getGroupStageId());
         }
+        if (request.getName() != null) {
+            existing.setName(request.getName());
+        }
         if (request.getMatchTime() != null) {
             existing.setMatchTime(request.getMatchTime());
         }
@@ -120,6 +135,7 @@ public class MatchServiceImpl implements MatchService {
         vo.setId(match.getId());
         vo.setTournamentId(match.getTournamentId());
         vo.setGroupStageId(match.getGroupStageId());
+        vo.setName(match.getName());
         vo.setTeam1Id(match.getTeam1Id());
         vo.setTeam2Id(match.getTeam2Id());
         vo.setTeam1Score(match.getTeam1Score());
@@ -163,6 +179,7 @@ public class MatchServiceImpl implements MatchService {
             vo.setId(match.getId());
             vo.setTournamentId(match.getTournamentId());
             vo.setGroupStageId(match.getGroupStageId());
+            vo.setName(match.getName());
             vo.setTeam1Id(match.getTeam1Id());
             vo.setTeam2Id(match.getTeam2Id());
             vo.setTeam1Score(match.getTeam1Score());
@@ -211,6 +228,7 @@ public class MatchServiceImpl implements MatchService {
             vo.setId(match.getId());
             vo.setTournamentId(match.getTournamentId());
             vo.setGroupStageId(match.getGroupStageId());
+            vo.setName(match.getName());
             vo.setTeam1Id(match.getTeam1Id());
             vo.setTeam2Id(match.getTeam2Id());
             vo.setTeam1Score(match.getTeam1Score());
@@ -266,11 +284,47 @@ public class MatchServiceImpl implements MatchService {
     /**
      * 构建 MatchDetailVO（含球队信息）
      */
+    /**
+     * 根据阶段和小组信息自动生成比赛名称
+     */
+    private String generateMatchName(Integer stage, Integer groupStageId) {
+        if (stage == null) return null;
+
+        if (stage == 2) {
+            // 小组赛：组名 + 小组赛
+            if (groupStageId != null) {
+                GroupStage groupStage = groupStageMapper.selectById(groupStageId);
+                if (groupStage != null && groupStage.getName() != null) {
+                    return groupStage.getName() + " 小组赛";
+                }
+            }
+            return "小组赛";
+        } else if (stage >= 4) {
+            return getStageName(stage);
+        }
+        return null;
+    }
+
+    /**
+     * 获取阶段名称
+     */
+    private String getStageName(int stage) {
+        switch (stage) {
+            case 4: return "八分之一决赛";
+            case 5: return "四分之一决赛";
+            case 6: return "半决赛";
+            case 7: return "三四名决赛";
+            case 8: return "决赛";
+            default: return null;
+        }
+    }
+
     private MatchDetailVO buildMatchDetailVO(Match match) {
         MatchDetailVO vo = new MatchDetailVO();
         vo.setId(match.getId());
         vo.setTournamentId(match.getTournamentId());
         vo.setGroupStageId(match.getGroupStageId());
+        vo.setName(match.getName());
         vo.setTeam1Id(match.getTeam1Id());
         vo.setTeam2Id(match.getTeam2Id());
         vo.setTeam1Score(match.getTeam1Score());

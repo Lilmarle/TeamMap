@@ -28,6 +28,20 @@ export const useUserStore = defineStore('user', () => {
     return res
   }
 
+  // 从 localStorage 恢复会话
+  async function restoreSession() {
+    if (!token.value) return
+    try {
+      const res = await userApi.getCurrentUser()
+      user.value = res.data
+    } catch {
+      // token 无效，清除登录状态
+      token.value = ''
+      user.value = null
+      localStorage.removeItem('token')
+    }
+  }
+
   // 修改密码
   async function changePassword(passwordData) {
     return await userApi.changePassword(passwordData)
@@ -52,6 +66,7 @@ export const useUserStore = defineStore('user', () => {
     login,
     register,
     getCurrentUser,
+    restoreSession,
     changePassword,
     logout,
     homeRoute

@@ -101,6 +101,15 @@ function getTeamStatusTagType(status) {
   return TEAM_STATUS_TAG_MAP[status] || 'info'
 }
 
+import { onMounted, watch } from 'vue'
+
+/** 调试：检查数据 */
+watch(() => props.teams, (val) => {
+  if (val && val.length > 0) {
+    console.log('EventTeams 数据样例:', JSON.stringify(val[0], null, 2))
+  }
+}, { immediate: true })
+
 /**
  * 从赛事中移除球队
  */

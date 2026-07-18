@@ -24,4 +24,6 @@ public interface MatchMapper {
     List<Match> selectByGroupStageId(@Param("groupStageId") Integer groupStageId);
 
     void deleteByGroupStageId(@Param("groupStageId") Integer groupStageId);
+
+    void deleteById(@Param("id") Long id);
 }
