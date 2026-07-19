@@ -9,7 +9,7 @@ export const teamApi = {
    * @returns {Promise<{code: number, data: Array, message: string}>}
    */
   getAllTeams() {
-    return request.get('/team')
+    return request.get('/teams')
   },
 
   /**
@@ -18,7 +18,7 @@ export const teamApi = {
    * @returns {Promise}
    */
   getTeamsByType(type) {
-    return request.get(`/team/type/${type}`)
+    return request.get(`/teams/type/${type}`)
   },
 
   /**
@@ -27,7 +27,7 @@ export const teamApi = {
    * @returns {Promise}
    */
   addTeam(data) {
-    return request.post('/team', data)
+    return request.post('/teams', data)
   },
 
   /**
@@ -36,7 +36,7 @@ export const teamApi = {
    * @returns {Promise}
    */
   updateTeam(data) {
-    return request.put('/team/' + data.teamId, data)
+    return request.put('/teams/' + data.teamId, data)
   },
 
   /**
@@ -45,6 +45,6 @@ export const teamApi = {
    * @returns {Promise}
    */
   deleteTeam(teamId) {
-    return request.delete('/team/' + teamId)
+    return request.delete('/teams/' + teamId)
   }
 }

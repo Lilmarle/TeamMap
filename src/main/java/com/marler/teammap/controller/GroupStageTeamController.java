@@ -11,13 +11,14 @@ import com.marler.teammap.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/group-stage-team")
+@RequestMapping("/api/group-stage-teamss")
 public class GroupStageTeamController {
 
     @Autowired
@@ -28,10 +29,11 @@ public class GroupStageTeamController {
 
     /**
      * 为一个小组添加一支球队
-     * POST /api/group-stage-team
+     * POST /api/group-stage-teams
      * 请求体：{ "groupStageId": 1, "teamId": 1 }
      */
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Result<?> addTeam(@RequestBody AddGroupStageTeamRequest request,
                              @RequestHeader("Authorization") String authHeader) {
         log.info("为小组添加一支球队 - groupStageId: {}, teamId: {}", request.getGroupStageId(), request.getTeamId());
@@ -68,10 +70,11 @@ public class GroupStageTeamController {
 
     /**
      * 为一个小组批量添加多支球队
-     * POST /api/group-stage-team/batch
+     * POST /api/group-stage-teams/batch
      * 请求体：{ "groupStageId": 1, "teamIds": [1, 2, 3, 4] }
      */
     @PostMapping("/batch")
+    @ResponseStatus(HttpStatus.CREATED)
     public Result<?> addTeams(@RequestBody BatchAddGroupStageTeamRequest request,
                               @RequestHeader("Authorization") String authHeader) {
         log.info("为小组批量添加球队 - groupStageId: {}, teamIds数量: {}",
@@ -110,7 +113,7 @@ public class GroupStageTeamController {
 
     /**
      * 为整个赛事的所有小组添加球队
-     * POST /api/group-stage-team/tournament
+     * POST /api/group-stage-teams/tournament
      * 请求体：
      * {
      *   "tournamentId": 1,
@@ -121,6 +124,7 @@ public class GroupStageTeamController {
      * }
      */
     @PostMapping("/tournament")
+    @ResponseStatus(HttpStatus.CREATED)
     public Result<?> addTeamsForTournament(@RequestBody TournamentGroupTeamRequest request,
                                             @RequestHeader("Authorization") String authHeader) {
         log.info("为赛事所有小组添加球队 - tournamentId: {}, assignments数量: {}",
@@ -164,7 +168,7 @@ public class GroupStageTeamController {
 
     /**
      * 查看某小组的所有球队
-     * GET /api/group-stage-team/group/{groupStageId}
+     * GET /api/group-stage-teams/group/{groupStageId}
      */
     @GetMapping("/group/{groupStageId}")
     public Result<List<GroupStageTeam>> listByGroup(@PathVariable Integer groupStageId) {

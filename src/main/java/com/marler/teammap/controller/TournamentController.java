@@ -9,20 +9,14 @@ import com.marler.teammap.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/tournament")
+@RequestMapping("/api/tournaments")
 public class TournamentController {
 
     @Autowired
@@ -35,6 +29,7 @@ public class TournamentController {
      * 创建赛事（权限：user.role >= 3）
      */
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Result<?> add(@RequestBody AddTournamentRequest request,
                          @RequestHeader("Authorization") String authHeader) {
         log.info("创建赛事请求 - name: {}", request.getName());

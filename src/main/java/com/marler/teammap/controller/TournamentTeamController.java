@@ -1,6 +1,7 @@
 package com.marler.teammap.controller;
 
 import com.marler.teammap.common.Result;
+import com.marler.teammap.dto.request.AddTournamentTeamRequest;
 import com.marler.teammap.dto.response.TournamentTeamInfoVO;
 import com.marler.teammap.dto.response.TournamentTeamSimpleVO;
 import com.marler.teammap.service.TournamentTeamService;
@@ -10,40 +11,44 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/tournament-team")
+@RequestMapping("/api/tournament-teams")
 public class TournamentTeamController {
 
     @Autowired
     private TournamentTeamService tournamentTeamService;
 
     /**
-     * 球队申请加入赛事
-     * 校验：
-     * 1. Team 和 Tournament 的 type（运动类型）必须一致
-     * 2. Tournament 的 status 必须为 1（筹办中）
+     * 创建赛事-球队关联（球队申请加入 / 主办方邀请）
+     *
+     * - 如果调用者是管理员（role >= 3），则直接创建已通过的关系（邀请）
+     * - 如果调用者是普通用户，则创建待审批的关系（申请）
+     *
+     * POST /api/tournament-teams
+     * 请求体：{ "tournamentId": 1, "teamId": 1 }
      */
-    @PostMapping("/apply/{tournamentId}/{teamId}")
-    public Result<?> apply(@PathVariable Long tournamentId,
-                           @PathVariable Long teamId,
-                           @RequestHeader("Authorization") String authHeader) {
-        log.info("球队申请加入赛事 - tournamentId: {}, teamId: {}", tournamentId, teamId);
+    @PostMapping
+    public Result<?> create(@RequestBody AddTournamentTeamRequest request,
+                            @RequestHeader("Authorization") String authHeader) {
+        log.info("创建赛事-球队关联 - tournamentId: {}, teamId: {}", request.getTournamentId(), request.getTeamId());
 
         // 1. Token 校验
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.warn("申请失败：未登录");
+            log.warn("操作失败：未登录");
             return Result.error("未登录");
         }
 
@@ -53,30 +58,40 @@ public class TournamentTeamController {
             String token = authHeader.replace("Bearer ", "");
             claims = JwtUtil.parseToken(token);
         } catch (Exception e) {
-            log.warn("申请失败：Token无效 - {}", e.getMessage());
+            log.warn("操作失败：Token无效 - {}", e.getMessage());
             return Result.error("token无效或已过期");
         }
 
         Long userId = Long.valueOf(claims.getSubject());
+        Integer role = claims.get("role", Integer.class);
 
         // 3. 参数校验
+        Long tournamentId = request.getTournamentId();
+        Long teamId = request.getTeamId();
         if (tournamentId == null || tournamentId <= 0) {
-            log.warn("申请失败：赛事ID无效");
+            log.warn("操作失败：赛事ID无效");
             return Result.error("赛事ID无效");
         }
         if (teamId == null || teamId <= 0) {
-            log.warn("申请失败：球队ID无效");
+            log.warn("操作失败：球队ID无效");
             return Result.error("球队ID无效");
         }
 
-        // 4. 调用业务逻辑
+        // 4. 根据角色决定行为：管理员邀请 vs 普通用户申请
         try {
-            tournamentTeamService.apply(tournamentId, teamId, userId);
-            log.info("球队申请加入赛事成功 - tournamentId: {}, teamId: {}, userId: {}",
-                    tournamentId, teamId, userId);
-            return Result.success("申请成功，等待审核");
+            if (role != null && role >= 3) {
+                tournamentTeamService.invite(tournamentId, teamId, userId, role);
+                log.info("主办方邀请球队加入赛事成功 - tournamentId: {}, teamId: {}, userId: {}",
+                        tournamentId, teamId, userId);
+                return Result.success("邀请成功，球队已加入赛事");
+            } else {
+                tournamentTeamService.apply(tournamentId, teamId, userId);
+                log.info("球队申请加入赛事成功 - tournamentId: {}, teamId: {}, userId: {}",
+                        tournamentId, teamId, userId);
+                return Result.success("申请成功，等待审核");
+            }
         } catch (RuntimeException e) {
-            log.warn("球队申请加入赛事失败 - tournamentId: {}, teamId: {}, reason: {}",
+            log.warn("创建赛事-球队关联失败 - tournamentId: {}, teamId: {}, reason: {}",
                     tournamentId, teamId, e.getMessage());
             return Result.error(e.getMessage());
         }
@@ -118,10 +133,11 @@ public class TournamentTeamController {
      * 审批球队申请（通过/驳回）
      * 权限：role >= 3（赛事管理员可审批自己创建的赛事，系统管理员可审批所有）
      */
-    @PutMapping("/approve/{relId}")
+    @PatchMapping("/{relId}/status")
     public Result<?> approve(@PathVariable Long relId,
-                             @RequestParam Integer status,
+                             @RequestBody Map<String, Integer> body,
                              @RequestHeader("Authorization") String authHeader) {
+        Integer status = body.get("status");
         log.info("审批球队申请 - relId: {}, status: {}", relId, status);
 
         // 1. Token 校验
@@ -148,6 +164,10 @@ public class TournamentTeamController {
             log.warn("审批失败：申请记录ID无效");
             return Result.error("申请记录ID无效");
         }
+        if (status == null) {
+            log.warn("审批失败：状态不能为空");
+            return Result.error("状态不能为空");
+        }
 
         // 4. 调用业务逻辑
         try {
@@ -162,19 +182,28 @@ public class TournamentTeamController {
     }
 
     /**
-     * 主办方邀请单个球队加入赛事
+     * 批量创建赛事-球队关联（主办方批量邀请）
      * 权限：role >= 3（赛事管理员可邀请自己创建的赛事，系统管理员可邀请所有）
-     * 逻辑：直接将球队加入赛事（状态设为已通过）
+     *
+     * POST /api/tournament-teams/batch
+     * 请求体：{ "tournamentId": 1, "teamIds": [1, 2, 3, 4] }
      */
-    @PostMapping("/invite/{tournamentId}/{teamId}")
-    public Result<?> invite(@PathVariable Long tournamentId,
-                            @PathVariable Long teamId,
-                            @RequestHeader("Authorization") String authHeader) {
-        log.info("主办方邀请球队加入赛事 - tournamentId: {}, teamId: {}", tournamentId, teamId);
+    @PostMapping("/batch")
+    public Result<?> createBatch(@RequestBody Map<String, Object> body,
+                                  @RequestHeader("Authorization") String authHeader) {
+        Long tournamentId = body.get("tournamentId") != null
+                ? ((Number) body.get("tournamentId")).longValue() : null;
+        @SuppressWarnings("unchecked")
+        List<Integer> teamIdsRaw = (List<Integer>) body.get("teamIds");
+        List<Long> teamIds = teamIdsRaw != null
+                ? teamIdsRaw.stream().map(Long::valueOf).collect(Collectors.toList()) : null;
+
+        log.info("批量创建赛事-球队关联 - tournamentId: {}, teamIds数量: {}",
+                tournamentId, teamIds != null ? teamIds.size() : 0);
 
         // 1. Token 校验
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.warn("邀请失败：未登录");
+            log.warn("批量操作失败：未登录");
             return Result.error("未登录");
         }
 
@@ -184,7 +213,7 @@ public class TournamentTeamController {
             String token = authHeader.replace("Bearer ", "");
             claims = JwtUtil.parseToken(token);
         } catch (Exception e) {
-            log.warn("邀请失败：Token无效 - {}", e.getMessage());
+            log.warn("批量操作失败：Token无效 - {}", e.getMessage());
             return Result.error("token无效或已过期");
         }
 
@@ -193,70 +222,21 @@ public class TournamentTeamController {
 
         // 3. 参数校验
         if (tournamentId == null || tournamentId <= 0) {
-            log.warn("邀请失败：赛事ID无效");
+            log.warn("批量操作失败：赛事ID无效");
             return Result.error("赛事ID无效");
         }
-        if (teamId == null || teamId <= 0) {
-            log.warn("邀请失败：球队ID无效");
-            return Result.error("球队ID无效");
-        }
-
-        // 4. 调用业务逻辑
-        try {
-            tournamentTeamService.invite(tournamentId, teamId, userId, role);
-            log.info("主办方邀请球队加入赛事成功 - tournamentId: {}, teamId: {}, userId: {}",
-                    tournamentId, teamId, userId);
-            return Result.success("邀请成功，球队已加入赛事");
-        } catch (RuntimeException e) {
-            log.warn("邀请球队失败 - tournamentId: {}, teamId: {}, reason: {}",
-                    tournamentId, teamId, e.getMessage());
-            return Result.error(e.getMessage());
-        }
-    }
-
-    /**
-     * 主办方批量邀请球队加入赛事
-     * 权限：role >= 3（赛事管理员可邀请自己创建的赛事，系统管理员可邀请所有）
-     * 逻辑：将选中的多个球队直接加入赛事
-     */
-    @PostMapping("/invite/batch/{tournamentId}")
-    public Result<?> inviteBatch(@PathVariable Long tournamentId,
-                                 @RequestBody List<Long> teamIds,
-                                 @RequestHeader("Authorization") String authHeader) {
-        log.info("主办方批量邀请球队加入赛事 - tournamentId: {}, teamIds: {}", tournamentId, teamIds);
-
-        // 1. Token 校验
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.warn("批量邀请失败：未登录");
-            return Result.error("未登录");
-        }
-
-        // 2. 解析 Token
-        Claims claims;
-        try {
-            String token = authHeader.replace("Bearer ", "");
-            claims = JwtUtil.parseToken(token);
-        } catch (Exception e) {
-            log.warn("批量邀请失败：Token无效 - {}", e.getMessage());
-            return Result.error("token无效或已过期");
-        }
-
-        Long userId = Long.valueOf(claims.getSubject());
-        Integer role = claims.get("role", Integer.class);
-
-        // 3. 参数校验
-        if (tournamentId == null || tournamentId <= 0) {
-            log.warn("批量邀请失败：赛事ID无效");
-            return Result.error("赛事ID无效");
+        if (teamIds == null || teamIds.isEmpty()) {
+            log.warn("批量操作失败：球队ID列表为空");
+            return Result.error("球队ID列表不能为空");
         }
 
         // 4. 调用业务逻辑
         try {
             String result = tournamentTeamService.inviteBatch(tournamentId, teamIds, userId, role);
-            log.info("主办方批量邀请球队完成 - tournamentId: {}, result: {}", tournamentId, result);
+            log.info("批量创建赛事-球队关联完成 - tournamentId: {}, result: {}", tournamentId, result);
             return Result.success(result);
         } catch (RuntimeException e) {
-            log.warn("批量邀请球队失败 - tournamentId: {}, reason: {}",
+            log.warn("批量操作失败 - tournamentId: {}, reason: {}",
                     tournamentId, e.getMessage());
             return Result.error(e.getMessage());
         }

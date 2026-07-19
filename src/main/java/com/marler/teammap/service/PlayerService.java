@@ -4,4 +4,6 @@ import com.marler.teammap.pojo.Player;
 
 public interface PlayerService {
     void add(Player player);
+
+    Player getById(Integer id);
 }

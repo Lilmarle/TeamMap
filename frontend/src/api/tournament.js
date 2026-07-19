@@ -9,7 +9,7 @@ export const tournamentApi = {
    * @returns {Promise<{code: number, data: Array, message: string}>}
    */
   getAll() {
-    return request.get('/tournament')
+    return request.get('/tournaments')
   },
 
   /**
@@ -17,7 +17,7 @@ export const tournamentApi = {
    * @returns {Promise<{code: number, data: Array, message: string}>}
    */
   getMy() {
-    return request.get('/tournament/my')
+    return request.get('/tournaments/my')
   },
 
   /**
@@ -26,7 +26,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   add(data) {
-    return request.post('/tournament', data)
+    return request.post('/tournaments', data)
   },
 
   /**
@@ -35,7 +35,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   delete(id) {
-    return request.delete(`/tournament/${id}`)
+    return request.delete(`/tournaments/${id}`)
   },
 
   /**
@@ -44,7 +44,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   getTournamentTeams(tournamentId) {
-    return request.get(`/tournament-team/${tournamentId}/teams`)
+    return request.get(`/tournament-teams/${tournamentId}/teams`)
   },
 
   /**
@@ -54,7 +54,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   inviteBatch(tournamentId, teamIds) {
-    return request.post(`/tournament-team/invite/batch/${tournamentId}`, teamIds)
+    return request.post('/tournament-teams/batch', { tournamentId, teamIds })
   },
 
   /**
@@ -64,7 +64,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   removeTeam(tournamentId, teamId) {
-    return request.delete(`/tournament-team/${tournamentId}/${teamId}`)
+    return request.delete(`/tournament-teams/${tournamentId}/${teamId}`)
   },
 
   // ==================== 小组赛相关 ====================
@@ -75,7 +75,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   getGroupStages(tournamentId) {
-    return request.get(`/group-stage/tournament/${tournamentId}`)
+    return request.get(`/group-stages/tournament/${tournamentId}`)
   },
 
   /**
@@ -84,7 +84,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   addGroupStage(data) {
-    return request.post('/group-stage', data)
+    return request.post('/group-stages', data)
   },
 
   /**
@@ -93,7 +93,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   batchAddGroupStages(data) {
-    return request.post('/group-stage/batch', data)
+    return request.post('/group-stages/batch', data)
   },
 
   /**
@@ -102,7 +102,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   getGroupStageDetail(groupStageId) {
-    return request.get(`/group-stage/${groupStageId}/detail`)
+    return request.get(`/group-stages/${groupStageId}/detail`)
   },
 
   /**
@@ -111,7 +111,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   deleteGroupStage(groupStageId) {
-    return request.delete(`/group-stage/${groupStageId}`)
+    return request.delete(`/group-stages/${groupStageId}`)
   },
 
   /**
@@ -120,7 +120,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   getGroupStageTeams(groupStageId) {
-    return request.get(`/group-stage-team/group/${groupStageId}`)
+    return request.get(`/group-stage-teams/group/${groupStageId}`)
   },
 
   /**
@@ -129,7 +129,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   addTeamsToGroup(data) {
-    return request.post('/group-stage-team/batch', data)
+    return request.post('/group-stage-teams/batch', data)
   },
 
   /**
@@ -138,7 +138,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   assignTeamsToGroups(data) {
-    return request.post('/group-stage-team/tournament', data)
+    return request.post('/group-stage-teams/tournament', data)
   },
 
   // ==================== 比赛管理 ====================
@@ -149,7 +149,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   addMatch(data) {
-    return request.post('/match', data)
+    return request.post('/matches', data)
   },
 
   /**
@@ -159,7 +159,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   updateMatch(id, data) {
-    return request.put(`/match/${id}`, data)
+    return request.put(`/matches/${id}`, data)
   },
 
   /**
@@ -168,7 +168,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   getTournamentMatches(tournamentId) {
-    return request.get(`/match/tournament/${tournamentId}`)
+    return request.get(`/matches/tournament/${tournamentId}`)
   },
 
   /**
@@ -177,7 +177,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   getGroupStageMatches(groupStageId) {
-    return request.get(`/match/group-stage/${groupStageId}`)
+    return request.get(`/matches/group-stage/${groupStageId}`)
   },
 
   // ==================== 赛程生成 ====================
@@ -189,7 +189,7 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   generateGroupSchedule(groupStageId, params = {}) {
-    return request.post(`/group-stage/${groupStageId}/schedule`, params)
+    return request.post(`/group-stages/${groupStageId}/schedule`, params)
   },
 
   /**
@@ -199,6 +199,26 @@ export const tournamentApi = {
    * @returns {Promise}
    */
   generateAllGroupSchedules(tournamentId, params = {}) {
-    return request.post(`/group-stage/tournament/${tournamentId}/schedule`, params)
+    return request.post(`/group-stages/tournament/${tournamentId}/schedule`, params)
+  },
+
+  // ==================== 比赛事件 ====================
+
+  /**
+   * 添加比赛事件
+   * @param {Object} data - { matchId, sportType, teamId, playerId?, relatedPlayerId?, type, description?, eventTime, extraInfo? }
+   * @returns {Promise}
+   */
+  addMatchEvent(data) {
+    return request.post('/match-events', data)
+  },
+
+  /**
+   * 获取某场比赛的所有事件
+   * @param {number} matchId - 比赛ID
+   * @returns {Promise}
+   */
+  getMatchEvents(matchId) {
+    return request.get(`/match-events/${matchId}`)
   }
 }

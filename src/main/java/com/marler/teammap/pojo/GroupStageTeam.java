@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,6 +42,6 @@ public class GroupStageTeam {
     private Integer goalsFor;         // 进球数（得分）
     private Integer goalsAgainst;     // 失球数（失分）
     private Integer goalDifference;   // 净胜球（进球-失球）
-    private String createTime;        // 创建时间
-    private String updateTime;        // 修改时间
+    private LocalDateTime createTime;        // 创建时间
+    private LocalDateTime updateTime;        // 修改时间
 }

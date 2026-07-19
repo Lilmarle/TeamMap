@@ -11,6 +11,7 @@ import com.marler.teammap.pojo.Tournament;
 import com.marler.teammap.service.GroupStageService;
 import com.marler.teammap.service.TournamentService;
 import com.marler.teammap.utils.JwtUtil;
+import org.springframework.http.HttpStatus;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/group-stage")
+@RequestMapping("/api/group-stages")
 public class GroupStageController {
 
     @Autowired
@@ -32,7 +33,7 @@ public class GroupStageController {
 
     /**
      * 添加单个小组
-     * POST /api/group-stage
+     * POST /api/group-stages
      * 请求体示例：
      * {
      *   "tournamentId": 1,
@@ -44,6 +45,7 @@ public class GroupStageController {
      * }
      */
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Result<?> add(@RequestBody AddGroupStageRequest request,
                          @RequestHeader("Authorization") String authHeader) {
         log.info("添加单个小组请求 - tournamentId: {}, name: {}", request.getTournamentId(), request.getName());
@@ -108,7 +110,7 @@ public class GroupStageController {
 
     /**
      * 批量添加小组
-     * POST /api/group-stage/batch
+     * POST /api/group-stages/batch
      * 请求体示例：
      * {
      *   "tournamentId": 1,
@@ -133,6 +135,7 @@ public class GroupStageController {
      * }
      */
     @PostMapping("/batch")
+    @ResponseStatus(HttpStatus.CREATED)
     public Result<?> addBatch(@RequestBody BatchAddGroupStageRequest request,
                               @RequestHeader("Authorization") String authHeader) {
         log.info("批量添加小组请求 - tournamentId: {}, groups数量: {}",
@@ -209,7 +212,7 @@ public class GroupStageController {
 
     /**
      * 查看某赛事的所有小组
-     * GET /api/group-stage/tournament/{tournamentId}
+     * GET /api/group-stages/tournament/{tournamentId}
      */
     @GetMapping("/tournament/{tournamentId}")
     public Result<List<GroupStage>> listByTournament(@PathVariable Integer tournamentId) {
@@ -220,7 +223,7 @@ public class GroupStageController {
 
     /**
      * 查看小组详情（含球队成绩）
-     * GET /api/group-stage/{id}/detail
+     * GET /api/group-stages/{id}/detail
      */
     @GetMapping("/{id}/detail")
     public Result<GroupStageDetailVO> detail(@PathVariable Integer id) {
@@ -234,7 +237,7 @@ public class GroupStageController {
 
     /**
      * 删除小组（同时删除已分配的球队关联）
-     * DELETE /api/group-stage/{id}
+     * DELETE /api/group-stages/{id}
      */
     @DeleteMapping("/{id}")
     public Result<?> delete(@PathVariable Integer id,
@@ -279,7 +282,7 @@ public class GroupStageController {
 
     /**
      * 为指定小组生成赛程（利用图结构轮转法 / Circle Method）
-     * POST /api/group-stage/{id}/schedule
+     * POST /api/group-stages/{id}/schedule
      * <p>
      * 请求体示例：
      * {
@@ -339,7 +342,7 @@ public class GroupStageController {
 
     /**
      * 为整个赛事的所有小组统一生成赛程（跨小组排期，每天最多3场）
-     * POST /api/group-stage/tournament/{tournamentId}/schedule
+     * POST /api/group-stages/tournament/{tournamentId}/schedule
      * <p>
      * 请求体同生成单小组赛程：
      * {

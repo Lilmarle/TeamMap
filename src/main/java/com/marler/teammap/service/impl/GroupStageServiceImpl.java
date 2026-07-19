@@ -7,10 +7,12 @@ import com.marler.teammap.mapper.GroupStageMapper;
 import com.marler.teammap.mapper.GroupStageTeamMapper;
 import com.marler.teammap.mapper.MatchMapper;
 import com.marler.teammap.mapper.TeamMapper;
+import com.marler.teammap.mapper.TournamentMapper;
 import com.marler.teammap.pojo.GroupStage;
 import com.marler.teammap.pojo.GroupStageTeam;
 import com.marler.teammap.pojo.Match;
 import com.marler.teammap.pojo.Team;
+import com.marler.teammap.pojo.Tournament;
 import com.marler.teammap.service.GroupStageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,9 @@ public class GroupStageServiceImpl implements GroupStageService {
 
     @Autowired
     private MatchMapper matchMapper;
+
+    @Autowired
+    private TournamentMapper tournamentMapper;
 
     private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -289,7 +294,7 @@ public class GroupStageServiceImpl implements GroupStageService {
                 LocalDateTime matchTime = currentDay
                         .withHour(TIME_SLOTS[matchesToday])
                         .withMinute(0).withSecond(0).withNano(0);
-                match.setMatchTime(matchTime.format(DT_FMT));
+                match.setMatchTime(matchTime);
                 match.setLocation(request.getLocation());
 
                 allScheduledMatches.add(match);
@@ -575,7 +580,7 @@ public class GroupStageServiceImpl implements GroupStageService {
                         .withSecond(0)
                         .withNano(0)
                         .plusMinutes((long) secondLegOrderInDay * MATCH_INTERVAL_MINUTES);
-                mirror.setMatchTime(matchTime.format(DT_FMT));
+                mirror.setMatchTime(matchTime);
 
                 allMatches.add(mirror);
                 secondLegMatchesToday++;
@@ -632,8 +637,11 @@ public class GroupStageServiceImpl implements GroupStageService {
         match.setTeam2Score(0);
         match.setStatus(1);  // 未开始
         match.setStage(2);   // 小组赛
-        match.setMatchTime(matchTime.format(DT_FMT));
+        match.setMatchTime(matchTime);
         match.setLocation(location);
+        // 从赛事中获取运动类型
+        Tournament tournament = tournamentMapper.selectById(groupStage.getTournamentId().longValue());
+        match.setSportType(tournament != null ? tournament.getType() : 1);
         return match;
     }
 

@@ -1,8 +1,11 @@
 package com.marler.teammap.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -31,6 +34,8 @@ public class GroupStage {
     private Integer directAdvance;   // 直接出线数（小组排名直接晋级）
     private Integer indirectAdvance; // 间接出线数（通过附加赛晋级）
     private Integer roundType;       // 循环数：1-单循环，2-双循环
-    private String createTime;       // 创建时间
-    private String updateTime;       // 修改时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createTime;       // 创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updateTime;       // 修改时间
 }

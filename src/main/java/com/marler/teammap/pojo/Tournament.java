@@ -1,8 +1,11 @@
 package com.marler.teammap.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -33,8 +36,12 @@ public class Tournament {
     private Long creatorId;
     private Integer type;          // 运动类型：1-足球，2-篮球，3-排球
     private Integer status;        // 状态：1-筹办中，2-进行中，3-已结束
-    private String startTime;
-    private String endTime;
-    private String createTime;
-    private String updateTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime startTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime endTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updateTime;
 }

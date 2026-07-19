@@ -3,15 +3,27 @@
 <mapper namespace="com.marler.teammap.mapper.MatchMapper">
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO `match` (tournament_id, group_stage_id, `name`, team1_id, team2_id, team1_score, team2_score, status, stage, match_time, location)
-        VALUES (#{tournamentId}, #{groupStageId}, #{name}, #{team1Id}, #{team2Id}, #{team1Score}, #{team2Score}, #{status}, #{stage}, #{matchTime}, #{location})
+        INSERT INTO `match` (tournament_id, sport_type, group_stage_id, `name`, team1_id, team2_id, team1_score, team2_score,
+                             aggregate_score, extra_time_score, penalty_score, winner_id,
+                             set_score, total_sets,
+                             status, stage, match_time, location)
+        VALUES (#{tournamentId}, #{sportType}, #{groupStageId}, #{name}, #{team1Id}, #{team2Id}, #{team1Score}, #{team2Score},
+                #{aggregateScore}, #{extraTimeScore}, #{penaltyScore}, #{winnerId},
+                #{setScore}, #{totalSets},
+                #{status}, #{stage}, #{matchTime}, #{location})
     </insert>
 
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO `match` (tournament_id, group_stage_id, `name`, team1_id, team2_id, team1_score, team2_score, status, stage, match_time, location)
+        INSERT INTO `match` (tournament_id, sport_type, group_stage_id, `name`, team1_id, team2_id, team1_score, team2_score,
+                             aggregate_score, extra_time_score, penalty_score, winner_id,
+                             set_score, total_sets,
+                             status, stage, match_time, location)
         VALUES
         <foreach collection="list" item="match" separator=",">
-            (#{match.tournamentId}, #{match.groupStageId}, #{match.name}, #{match.team1Id}, #{match.team2Id}, #{match.team1Score}, #{match.team2Score}, #{match.status}, #{match.stage}, #{match.matchTime}, #{match.location})
+            (#{match.tournamentId}, #{match.sportType}, #{match.groupStageId}, #{match.name}, #{match.team1Id}, #{match.team2Id}, #{match.team1Score}, #{match.team2Score},
+             #{match.aggregateScore}, #{match.extraTimeScore}, #{match.penaltyScore}, #{match.winnerId},
+             #{match.setScore}, #{match.totalSets},
+             #{match.status}, #{match.stage}, #{match.matchTime}, #{match.location})
         </foreach>
     </insert>
 
@@ -36,6 +48,13 @@
         <set>
             <if test="team1Score != null">team1_score = #{team1Score},</if>
             <if test="team2Score != null">team2_score = #{team2Score},</if>
+            <if test="sportType != null">sport_type = #{sportType},</if>
+            <if test="aggregateScore != null">aggregate_score = #{aggregateScore},</if>
+            <if test="extraTimeScore != null">extra_time_score = #{extraTimeScore},</if>
+            <if test="penaltyScore != null">penalty_score = #{penaltyScore},</if>
+            <if test="winnerId != null">winner_id = #{winnerId},</if>
+            <if test="setScore != null">set_score = #{setScore},</if>
+            <if test="totalSets != null">total_sets = #{totalSets},</if>
             <if test="status != null">`status` = #{status},</if>
             <if test="stage != null">stage = #{stage},</if>
             <if test="groupStageId != null">group_stage_id = #{groupStageId},</if>
@@ -53,5 +72,43 @@
     <delete id="deleteById">
         DELETE FROM `match` WHERE id = #{id}
     </delete>
+
+    <!-- 查询比赛统计总览（v_match_stats_overview） -->
+    <select id="selectStatsOverviewByMatchId"
+            resultType="com.marler.teammap.dto.response.MatchStatsOverviewVO">
+        SELECT
+            match_id AS matchId,
+            match_name AS matchName,
+            sport_type AS sportType,
+            sport_type_name AS sportTypeName,
+            match_time AS matchTime,
+            location,
+            team1,
+            team1_score AS team1Score,
+            team1_goals AS team1Goals,
+            team1_goals_against AS team1GoalsAgainst,
+            team1_yellow AS team1Yellow,
+            team1_red AS team1Red,
+            team1_fouls AS team1Fouls,
+            team1_subs AS team1Subs,
+            team2,
+            team2_score AS team2Score,
+            team2_goals AS team2Goals,
+            team2_goals_against AS team2GoalsAgainst,
+            team2_yellow AS team2Yellow,
+            team2_red AS team2Red,
+            team2_fouls AS team2Fouls,
+            team2_subs AS team2Subs,
+            status,
+            stage,
+            stage_name AS stageName,
+            total_goals AS totalGoals,
+            total_yellow_cards AS totalYellowCards,
+            total_red_cards AS totalRedCards,
+            total_fouls AS totalFouls,
+            total_substitutions AS totalSubstitutions
+        FROM v_match_stats_overview
+        WHERE match_id = #{matchId}
+    </select>
 
 </mapper>

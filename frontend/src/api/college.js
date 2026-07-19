@@ -9,6 +9,6 @@ export const collegeApi = {
    * @returns {Promise<{code: number, data: Array, message: string}>}
    */
   getAll() {
-    return request.get('/college')
+    return request.get('/colleges')
   }
 }

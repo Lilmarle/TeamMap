@@ -16,4 +16,9 @@ public class PlayerServiceImpl implements PlayerService {
     public void add(Player player) {
         playerMapper.insert(player);
     }
+
+    @Override
+    public Player getById(Integer id) {
+        return playerMapper.selectById(id);
+    }
 }

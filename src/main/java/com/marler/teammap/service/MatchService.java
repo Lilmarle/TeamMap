@@ -38,4 +38,9 @@ public interface MatchService {
      * 查询某小组的所有比赛（含双方球队信息）
      */
     List<MatchDetailVO> listByGroupStage(Integer groupStageId);
+
+    /**
+     * 删除比赛
+     */
+    void delete(Long id);
 }

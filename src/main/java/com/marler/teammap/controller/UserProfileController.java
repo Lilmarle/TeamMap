@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/user-profile")
+@RequestMapping("/api/user-profiles")
 public class UserProfileController {
 
     @Autowired

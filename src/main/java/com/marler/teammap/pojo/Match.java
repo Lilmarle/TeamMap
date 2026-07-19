@@ -1,8 +1,11 @@
 package com.marler.teammap.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 //CREATE TABLE `match` (
 //        `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '比赛ID，主键',
@@ -36,16 +39,28 @@ import lombok.NoArgsConstructor;
 public class Match {
     private Long id;                 // 比赛ID，主键
     private Integer tournamentId;    // 关联赛事ID，关联tournament表
+    private Integer sportType;       // 运动类型：1-足球，2-篮球，3-排球
     private Integer groupStageId;    // 小组赛ID，关联group_stage表（仅小组赛阶段使用）
     private String name;             // 比赛名称（如：A组第1轮 文学院 vs 外国语学院）
     private Integer team1Id;         // 队伍1ID，关联team表
     private Integer team2Id;         // 队伍2ID，关联team表
     private Integer team1Score;      // 队伍1得分
     private Integer team2Score;      // 队伍2得分
+    // 淘汰赛扩展字段
+    private String aggregateScore;   // 两回合总比分（如：3-2）
+    private String extraTimeScore;   // 加时赛比分（如：1-0）
+    private String penaltyScore;     // 点球比分（如：4-3）
+    private Integer winnerId;        // 获胜队伍ID（关联team表）
+    // 排球扩展字段
+    private String setScore;         // 排球局分（如：25-23,25-20,22-25,25-18）
+    private Integer totalSets;       // 总局数（如：3-1表示打了4局）
     private Integer status;          // 状态：1-未开始，2-进行中，3-已结束，4-结算中
     private Integer stage;           // 阶段：1-友谊赛，2-小组赛，3-附加赛 4-八分之一决赛，5-四分之一决赛，6-半决赛，7-三四名决赛，8-决赛
-    private String matchTime;        // 比赛开始时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime matchTime;        // 比赛开始时间
     private String location;         // 比赛地点
-    private String createTime;       // 创建时间
-    private String updateTime;       // 修改时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createTime;       // 创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updateTime;       // 修改时间
 }

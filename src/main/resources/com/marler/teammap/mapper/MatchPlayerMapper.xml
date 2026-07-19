@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.marler.teammap.mapper.MatchPlayerMapper">
+
+    <!-- 查询比赛球员表现（v_match_player_performance） -->
+    <select id="selectPerformanceByMatchId"
+            resultType="com.marler.teammap.dto.response.MatchPlayerPerformanceVO">
+        SELECT
+            id,
+            match_id AS matchId,
+            sport_type AS sportType,
+            sport_type_name AS sportTypeName,
+            match_name AS matchName,
+            player_id AS playerId,
+            player_name AS playerName,
+            jersey_number AS jerseyNumber,
+            team_id AS teamId,
+            team_name AS teamName,
+            status,
+            status_name AS statusName,
+            play_time AS playTime,
+            play_time_display AS playTimeDisplay,
+            goals,
+            assists,
+            yellow_cards AS yellowCards,
+            red_cards AS redCards,
+            fouls,
+            performance_score AS performanceScore
+        FROM v_match_player_performance
+        WHERE match_id = #{matchId}
+        ORDER BY performance_score DESC
+    </select>
+
+    <!-- 查询球员赛事统计（v_player_tournament_stats） -->
+    <select id="selectTournamentStats"
+            resultType="com.marler.teammap.dto.response.PlayerTournamentStatsVO">
+        SELECT
+            player_id AS playerId,
+            player_name AS playerName,
+            jersey_number AS jerseyNumber,
+            team_id AS teamId,
+            team_name AS teamName,
+            tournament_id AS tournamentId,
+            sport_type AS sportType,
+            sport_type_name AS sportTypeName,
+            match_played AS matchPlayed,
+            total_goals AS totalGoals,
+            total_assists AS totalAssists,
+            total_yellow_cards AS totalYellowCards,
+            total_red_cards AS totalRedCards,
+            total_fouls AS totalFouls,
+            total_play_time AS totalPlayTime,
+            avg_play_time AS avgPlayTime,
+            total_score AS totalScore
+        FROM v_player_tournament_stats
+        <where>
+            <if test="tournamentId != null">AND tournament_id = #{tournamentId}</if>
+            <if test="teamId != null">AND team_id = #{teamId}</if>
+        </where>
+        ORDER BY total_score DESC
+    </select>
+
+    <!-- 根据比赛ID查询球员阵容列表 -->
+    <select id="selectByMatchId" resultType="com.marler.teammap.pojo.MatchPlayer">
+        SELECT
+            id,
+            match_id AS matchId,
+            sport_type AS sportType,
+            player_id AS playerId,
+            status,
+            play_time AS playTime,
+            create_time AS createTime,
+            update_time AS updateTime
+        FROM match_player
+        WHERE match_id = #{matchId}
+        ORDER BY status ASC, id ASC
+    </select>
+
+    <!-- 根据ID查询球员阵容记录 -->
+    <select id="selectById" resultType="com.marler.teammap.pojo.MatchPlayer">
+        SELECT
+            id,
+            match_id AS matchId,
+            sport_type AS sportType,
+            player_id AS playerId,
+            status,
+            play_time AS playTime,
+            create_time AS createTime,
+            update_time AS updateTime
+        FROM match_player
+        WHERE id = #{id}
+    </select>
+
+    <!-- 添加球员阵容 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO match_player (match_id, sport_type, player_id, status, play_time)
+        VALUES (#{matchId}, #{sportType}, #{playerId}, #{status}, #{playTime})
+    </insert>
+
+    <!-- 更新球员阵容 -->
+    <update id="updateById">
+        UPDATE match_player
+        <set>
+            <if test="sportType != null">sport_type = #{sportType},</if>
+            <if test="playerId != null">player_id = #{playerId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="playTime != null">play_time = #{playTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除球员阵容记录 -->
+    <delete id="deleteById">
+        DELETE FROM match_player WHERE id = #{id}
+    </delete>
+
+</mapper>

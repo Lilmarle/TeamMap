@@ -61,6 +61,19 @@ public class MatchServiceImpl implements MatchService {
             match.setName(generateMatchName(request.getStage(), request.getGroupStageId()));
         }
 
+        // 运动类型
+        match.setSportType(request.getSportType());
+
+        // 淘汰赛扩展字段
+        match.setAggregateScore(request.getAggregateScore());
+        match.setExtraTimeScore(request.getExtraTimeScore());
+        match.setPenaltyScore(request.getPenaltyScore());
+        match.setWinnerId(request.getWinnerId());
+
+        // 排球扩展字段
+        match.setSetScore(request.getSetScore());
+        match.setTotalSets(request.getTotalSets());
+
         // 比赛时间、地点不填默认为空
         match.setMatchTime(request.getMatchTime());
         match.setLocation(request.getLocation());
@@ -108,6 +121,27 @@ public class MatchServiceImpl implements MatchService {
         if (request.getLocation() != null) {
             existing.setLocation(request.getLocation());
         }
+        if (request.getSportType() != null) {
+            existing.setSportType(request.getSportType());
+        }
+        if (request.getAggregateScore() != null) {
+            existing.setAggregateScore(request.getAggregateScore());
+        }
+        if (request.getExtraTimeScore() != null) {
+            existing.setExtraTimeScore(request.getExtraTimeScore());
+        }
+        if (request.getPenaltyScore() != null) {
+            existing.setPenaltyScore(request.getPenaltyScore());
+        }
+        if (request.getWinnerId() != null) {
+            existing.setWinnerId(request.getWinnerId());
+        }
+        if (request.getSetScore() != null) {
+            existing.setSetScore(request.getSetScore());
+        }
+        if (request.getTotalSets() != null) {
+            existing.setTotalSets(request.getTotalSets());
+        }
 
         // 3. 执行更新
         matchMapper.updateById(existing);
@@ -144,6 +178,13 @@ public class MatchServiceImpl implements MatchService {
         vo.setStage(match.getStage());
         vo.setMatchTime(match.getMatchTime());
         vo.setLocation(match.getLocation());
+        vo.setSportType(match.getSportType());
+        vo.setAggregateScore(match.getAggregateScore());
+        vo.setExtraTimeScore(match.getExtraTimeScore());
+        vo.setPenaltyScore(match.getPenaltyScore());
+        vo.setWinnerId(match.getWinnerId());
+        vo.setSetScore(match.getSetScore());
+        vo.setTotalSets(match.getTotalSets());
         vo.setCreateTime(match.getCreateTime());
         vo.setUpdateTime(match.getUpdateTime());
 
@@ -188,6 +229,13 @@ public class MatchServiceImpl implements MatchService {
             vo.setStage(match.getStage());
             vo.setMatchTime(match.getMatchTime());
             vo.setLocation(match.getLocation());
+            vo.setSportType(match.getSportType());
+            vo.setAggregateScore(match.getAggregateScore());
+            vo.setExtraTimeScore(match.getExtraTimeScore());
+            vo.setPenaltyScore(match.getPenaltyScore());
+            vo.setWinnerId(match.getWinnerId());
+            vo.setSetScore(match.getSetScore());
+            vo.setTotalSets(match.getTotalSets());
             vo.setCreateTime(match.getCreateTime());
             vo.setUpdateTime(match.getUpdateTime());
 
@@ -237,6 +285,13 @@ public class MatchServiceImpl implements MatchService {
             vo.setStage(match.getStage());
             vo.setMatchTime(match.getMatchTime());
             vo.setLocation(match.getLocation());
+            vo.setSportType(match.getSportType());
+            vo.setAggregateScore(match.getAggregateScore());
+            vo.setExtraTimeScore(match.getExtraTimeScore());
+            vo.setPenaltyScore(match.getPenaltyScore());
+            vo.setWinnerId(match.getWinnerId());
+            vo.setSetScore(match.getSetScore());
+            vo.setTotalSets(match.getTotalSets());
             vo.setCreateTime(match.getCreateTime());
             vo.setUpdateTime(match.getUpdateTime());
 
@@ -333,6 +388,13 @@ public class MatchServiceImpl implements MatchService {
         vo.setStage(match.getStage());
         vo.setMatchTime(match.getMatchTime());
         vo.setLocation(match.getLocation());
+        vo.setSportType(match.getSportType());
+        vo.setAggregateScore(match.getAggregateScore());
+        vo.setExtraTimeScore(match.getExtraTimeScore());
+        vo.setPenaltyScore(match.getPenaltyScore());
+        vo.setWinnerId(match.getWinnerId());
+        vo.setSetScore(match.getSetScore());
+        vo.setTotalSets(match.getTotalSets());
         vo.setCreateTime(match.getCreateTime());
         vo.setUpdateTime(match.getUpdateTime());
 
@@ -349,5 +411,13 @@ public class MatchServiceImpl implements MatchService {
             vo.setTeam2Logo(team2.getLogo());
         }
         return vo;
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        log.info("删除比赛 - id: {}", id);
+        matchMapper.deleteById(id);
+        log.info("比赛删除成功 - id: {}", id);
     }
 }

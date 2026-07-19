@@ -1,5 +1,6 @@
 package com.marler.teammap.mapper;
 
+import com.marler.teammap.dto.response.MatchStatsOverviewVO;
 import com.marler.teammap.pojo.Match;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -26,4 +27,6 @@ public interface MatchMapper {
     void deleteByGroupStageId(@Param("groupStageId") Integer groupStageId);
 
     void deleteById(@Param("id") Long id);
+
+    MatchStatsOverviewVO selectStatsOverviewByMatchId(@Param("matchId") Long matchId);
 }

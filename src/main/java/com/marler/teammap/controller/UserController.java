@@ -3,6 +3,7 @@ package com.marler.teammap.controller;
 import com.marler.teammap.common.Result;
 import com.marler.teammap.dto.request.ChangePasswordRequest;
 import com.marler.teammap.dto.request.LoginRequest;
+import com.marler.teammap.dto.request.RegisterRequest;
 import com.marler.teammap.dto.response.LoginResponse;
 import com.marler.teammap.pojo.User;
 import com.marler.teammap.service.UserService;
@@ -17,31 +18,39 @@ import org.springframework.web.bind.annotation.*;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
     /**
-     * 用户注册
+     * 创建用户（注册）
+     * POST /api/users
+     * 请求体：{ "username": "...", "password": "...", "role": 1 }
+     * - role 可选，默认 1（普通用户），3（赛事管理员），4（系统管理员）
      */
-    @PostMapping("/register")
-    public Result<?> register(@RequestBody User user) {
-        log.info("用户注册请求 - username: {}", user.getUsername());
+    @PostMapping
+    public Result<?> create(@RequestBody RegisterRequest request) {
+        log.info("用户注册请求 - username: {}, role: {}", request.getUsername(), request.getRole());
 
         // 参数校验
-        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+        if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
             log.warn("注册失败：用户名为空");
             return Result.error("用户名不能为空");
         }
-        if (user.getPassword() == null || user.getPassword().length() < 6) {
-            log.warn("注册失败：密码长度不足6位 - username: {}", user.getUsername());
+        if (request.getPassword() == null || request.getPassword().length() < 6) {
+            log.warn("注册失败：密码长度不足6位 - username: {}", request.getUsername());
             return Result.error("密码不能少于6位");
         }
 
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(request.getPassword());
+        user.setRole(request.getRole() != null ? request.getRole() : 1);
+
         userService.register(user);
-        log.info("用户注册成功 - username: {}", user.getUsername());
+        log.info("用户注册成功 - username: {}, role: {}", user.getUsername(), user.getRole());
         return Result.success("注册成功");
     }
 
@@ -141,53 +150,5 @@ public class UserController {
         user.setPassword(null);
         log.info("查询用户成功 - userId: {}, username: {}", id, user.getUsername());
         return Result.success(user);
-    }
-
-    /**
-     * 注册为赛事管理员（role=3）
-     */
-    @PostMapping("/register/admin-event")
-    public Result<?> registerAsEventAdmin(@RequestBody User user) {
-        log.info("赛事管理员注册请求 - username: {}", user.getUsername());
-
-        // 参数校验
-        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
-            log.warn("注册失败：用户名为空");
-            return Result.error("用户名不能为空");
-        }
-        if (user.getPassword() == null || user.getPassword().length() < 6) {
-            log.warn("注册失败：密码长度不足6位 - username: {}", user.getUsername());
-            return Result.error("密码不能少于6位");
-        }
-
-        // 设置为赛事管理员角色
-        user.setRole(3);
-        userService.register(user);
-        log.info("赛事管理员注册成功 - username: {}, role: 3", user.getUsername());
-        return Result.success("赛事管理员注册成功");
-    }
-
-    /**
-     * 注册为系统管理员（role=4）
-     */
-    @PostMapping("/register/admin-system")
-    public Result<?> registerAsSystemAdmin(@RequestBody User user) {
-        log.info("系统管理员注册请求 - username: {}", user.getUsername());
-
-        // 参数校验
-        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
-            log.warn("注册失败：用户名为空");
-            return Result.error("用户名不能为空");
-        }
-        if (user.getPassword() == null || user.getPassword().length() < 6) {
-            log.warn("注册失败：密码长度不足6位 - username: {}", user.getUsername());
-            return Result.error("密码不能少于6位");
-        }
-
-        // 设置为系统管理员角色
-        user.setRole(4);
-        userService.register(user);
-        log.info("系统管理员注册成功 - username: {}, role: 4", user.getUsername());
-        return Result.success("系统管理员注册成功");
     }
 }
