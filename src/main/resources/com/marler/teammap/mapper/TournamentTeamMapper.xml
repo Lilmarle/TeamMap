@@ -77,7 +77,7 @@
         FROM tournament_team tt
                  INNER JOIN team t ON tt.team_id = t.id
         WHERE tt.tournament_id = #{tournamentId}
-          AND tt.status = 2
+          AND tt.status = 1
         ORDER BY tt.create_time DESC
     </select>
 

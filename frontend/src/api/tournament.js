@@ -220,5 +220,23 @@ export const tournamentApi = {
    */
   getMatchEvents(matchId) {
     return request.get(`/match-events/${matchId}`)
+  },
+
+  /**
+   * 获取某场比赛的事件统计（按队伍分组）
+   * @param {number} matchId - 比赛ID
+   * @returns {Promise}
+   */
+  getMatchEventStats(matchId) {
+    return request.get(`/match-events/${matchId}/stats`)
+  },
+
+  /**
+   * 获取比赛球员表现列表（含球员名称、球衣号码等）
+   * @param {number} matchId - 比赛ID
+   * @returns {Promise}
+   */
+  getMatchPlayers(matchId) {
+    return request.get(`/match-players/performance/${matchId}`)
   }
 }

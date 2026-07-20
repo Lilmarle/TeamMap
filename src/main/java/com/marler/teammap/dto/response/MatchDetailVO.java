@@ -1,12 +1,18 @@
 package com.marler.teammap.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 /**
  * 赛况详情 VO（对应 v_match_detail 视图）
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MatchDetailVO {
     // ===== 比赛信息 =====
     private Long id;                 // 比赛ID
@@ -63,136 +69,4 @@ public class MatchDetailVO {
     private LocalDateTime createTime;       // 创建时间
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;       // 修改时间
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public Integer getTournamentId() { return tournamentId; }
-    public void setTournamentId(Integer tournamentId) { this.tournamentId = tournamentId; }
-
-    public String getTournamentName() { return tournamentName; }
-    public void setTournamentName(String tournamentName) { this.tournamentName = tournamentName; }
-
-    public Integer getSportType() { return sportType; }
-    public void setSportType(Integer sportType) { this.sportType = sportType; }
-
-    public String getSportTypeName() { return sportTypeName; }
-    public void setSportTypeName(String sportTypeName) { this.sportTypeName = sportTypeName; }
-
-    public Integer getGroupStageId() { return groupStageId; }
-    public void setGroupStageId(Integer groupStageId) { this.groupStageId = groupStageId; }
-
-    public String getGroupStageName() { return groupStageName; }
-    public void setGroupStageName(String groupStageName) { this.groupStageName = groupStageName; }
-
-    public Integer getStage() { return stage; }
-    public void setStage(Integer stage) { this.stage = stage; }
-
-    public String getStageName() { return stageName; }
-    public void setStageName(String stageName) { this.stageName = stageName; }
-
-    public Integer getStatus() { return status; }
-    public void setStatus(Integer status) { this.status = status; }
-
-    public String getStatusName() { return statusName; }
-    public void setStatusName(String statusName) { this.statusName = statusName; }
-
-    public LocalDateTime getMatchTime() { return matchTime; }
-    public void setMatchTime(LocalDateTime matchTime) { this.matchTime = matchTime; }
-
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
-
-    public String getAggregateScore() { return aggregateScore; }
-    public void setAggregateScore(String aggregateScore) { this.aggregateScore = aggregateScore; }
-
-    public String getExtraTimeScore() { return extraTimeScore; }
-    public void setExtraTimeScore(String extraTimeScore) { this.extraTimeScore = extraTimeScore; }
-
-    public String getPenaltyScore() { return penaltyScore; }
-    public void setPenaltyScore(String penaltyScore) { this.penaltyScore = penaltyScore; }
-
-    public Integer getWinnerId() { return winnerId; }
-    public void setWinnerId(Integer winnerId) { this.winnerId = winnerId; }
-
-    public String getSetScore() { return setScore; }
-    public void setSetScore(String setScore) { this.setScore = setScore; }
-
-    public Integer getTotalSets() { return totalSets; }
-    public void setTotalSets(Integer totalSets) { this.totalSets = totalSets; }
-
-    public Integer getTeam1Id() { return team1Id; }
-    public void setTeam1Id(Integer team1Id) { this.team1Id = team1Id; }
-
-    public String getTeam1Name() { return team1Name; }
-    public void setTeam1Name(String team1Name) { this.team1Name = team1Name; }
-
-    public String getTeam1ShortName() { return team1ShortName; }
-    public void setTeam1ShortName(String team1ShortName) { this.team1ShortName = team1ShortName; }
-
-    public String getTeam1Logo() { return team1Logo; }
-    public void setTeam1Logo(String team1Logo) { this.team1Logo = team1Logo; }
-
-    public Integer getTeam1Score() { return team1Score; }
-    public void setTeam1Score(Integer team1Score) { this.team1Score = team1Score; }
-
-    public Integer getTeam1Goals() { return team1Goals; }
-    public void setTeam1Goals(Integer team1Goals) { this.team1Goals = team1Goals; }
-
-    public Integer getTeam1GoalsAgainst() { return team1GoalsAgainst; }
-    public void setTeam1GoalsAgainst(Integer team1GoalsAgainst) { this.team1GoalsAgainst = team1GoalsAgainst; }
-
-    public Integer getTeam1YellowCards() { return team1YellowCards; }
-    public void setTeam1YellowCards(Integer team1YellowCards) { this.team1YellowCards = team1YellowCards; }
-
-    public Integer getTeam1RedCards() { return team1RedCards; }
-    public void setTeam1RedCards(Integer team1RedCards) { this.team1RedCards = team1RedCards; }
-
-    public Integer getTeam1Fouls() { return team1Fouls; }
-    public void setTeam1Fouls(Integer team1Fouls) { this.team1Fouls = team1Fouls; }
-
-    public Integer getTeam1Substitutions() { return team1Substitutions; }
-    public void setTeam1Substitutions(Integer team1Substitutions) { this.team1Substitutions = team1Substitutions; }
-
-    public Integer getTeam2Id() { return team2Id; }
-    public void setTeam2Id(Integer team2Id) { this.team2Id = team2Id; }
-
-    public String getTeam2Name() { return team2Name; }
-    public void setTeam2Name(String team2Name) { this.team2Name = team2Name; }
-
-    public String getTeam2ShortName() { return team2ShortName; }
-    public void setTeam2ShortName(String team2ShortName) { this.team2ShortName = team2ShortName; }
-
-    public String getTeam2Logo() { return team2Logo; }
-    public void setTeam2Logo(String team2Logo) { this.team2Logo = team2Logo; }
-
-    public Integer getTeam2Score() { return team2Score; }
-    public void setTeam2Score(Integer team2Score) { this.team2Score = team2Score; }
-
-    public Integer getTeam2Goals() { return team2Goals; }
-    public void setTeam2Goals(Integer team2Goals) { this.team2Goals = team2Goals; }
-
-    public Integer getTeam2GoalsAgainst() { return team2GoalsAgainst; }
-    public void setTeam2GoalsAgainst(Integer team2GoalsAgainst) { this.team2GoalsAgainst = team2GoalsAgainst; }
-
-    public Integer getTeam2YellowCards() { return team2YellowCards; }
-    public void setTeam2YellowCards(Integer team2YellowCards) { this.team2YellowCards = team2YellowCards; }
-
-    public Integer getTeam2RedCards() { return team2RedCards; }
-    public void setTeam2RedCards(Integer team2RedCards) { this.team2RedCards = team2RedCards; }
-
-    public Integer getTeam2Fouls() { return team2Fouls; }
-    public void setTeam2Fouls(Integer team2Fouls) { this.team2Fouls = team2Fouls; }
-
-    public Integer getTeam2Substitutions() { return team2Substitutions; }
-    public void setTeam2Substitutions(Integer team2Substitutions) { this.team2Substitutions = team2Substitutions; }
-
-    public LocalDateTime getCreateTime() { return createTime; }
-    public void setCreateTime(LocalDateTime createTime) { this.createTime = createTime; }
-
-    public LocalDateTime getUpdateTime() { return updateTime; }
-    public void setUpdateTime(LocalDateTime updateTime) { this.updateTime = updateTime; }
 }

@@ -2,6 +2,7 @@ package com.marler.teammap.service;
 
 import com.marler.teammap.dto.request.AddMatchEventRequest;
 import com.marler.teammap.dto.response.MatchEventStatsVO;
+import com.marler.teammap.dto.response.MatchEventVO;
 import com.marler.teammap.pojo.MatchEvent;
 
 import java.util.List;
@@ -18,6 +19,10 @@ public interface MatchEventService {
      */
     List<MatchEvent> getByMatchId(Integer matchId);
 
+    /**
+     * 根据比赛ID查询事件列表（含球员名称、球衣号码等）
+     */
+    List<MatchEventVO> getEventVOByMatchId(Integer matchId);
 
     /**
      * 根据比赛ID查询事件统计

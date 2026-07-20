@@ -80,4 +80,36 @@
         ORDER BY role ASC, jersey_number ASC
     </select>
 
+    <!-- 查询所有球员信息 -->
+    <select id="selectAllPlayerInfo"
+            resultType="com.marler.teammap.dto.response.PlayerInfoVO">
+        SELECT
+            player_id AS playerId,
+            user_id AS userId,
+            team_id AS teamId,
+            team_name AS teamName,
+            team_short_name AS teamShortName,
+            team_logo AS teamLogo,
+            sport_type AS sportType,
+            sport_type_name AS sportTypeName,
+            team_gender AS teamGender,
+            team_gender_name AS teamGenderName,
+            team_description AS teamDescription,
+            member_id AS memberId,
+            role,
+            role_name AS roleName,
+            portrait_photo AS portraitPhoto,
+            join_time AS joinTime,
+            member_update_time AS memberUpdateTime,
+            jersey_name AS jerseyName,
+            jersey_number AS jerseyNumber,
+            position,
+            status,
+            status_name AS statusName,
+            player_create_time AS playerCreateTime,
+            player_update_time AS playerUpdateTime
+        FROM v_player_info
+        ORDER BY team_id ASC, role ASC, jersey_number ASC
+    </select>
+
 </mapper>

@@ -18,4 +18,6 @@ public interface MatchEventMapper {
     List<MatchEventStatsVO> selectEventStatsByMatchId(@Param("matchId") Integer matchId);
 
     List<MatchEventVO> selectEventVOByPlayerId(@Param("playerId") Integer playerId);
+
+    List<MatchEventVO> selectEventVOByMatchId(@Param("matchId") Integer matchId);
 }

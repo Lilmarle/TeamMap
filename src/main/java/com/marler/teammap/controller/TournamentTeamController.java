@@ -83,12 +83,12 @@ public class TournamentTeamController {
                 tournamentTeamService.invite(tournamentId, teamId, userId, role);
                 log.info("主办方邀请球队加入赛事成功 - tournamentId: {}, teamId: {}, userId: {}",
                         tournamentId, teamId, userId);
-                return Result.success("邀请成功，球队已加入赛事");
+                return Result.success("球队已加入赛事");
             } else {
                 tournamentTeamService.apply(tournamentId, teamId, userId);
                 log.info("球队申请加入赛事成功 - tournamentId: {}, teamId: {}, userId: {}",
                         tournamentId, teamId, userId);
-                return Result.success("申请成功，等待审核");
+                return Result.success("球队已加入赛事");
             }
         } catch (RuntimeException e) {
             log.warn("创建赛事-球队关联失败 - tournamentId: {}, teamId: {}, reason: {}",

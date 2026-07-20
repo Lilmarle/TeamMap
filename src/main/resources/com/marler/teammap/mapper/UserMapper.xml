@@ -30,6 +30,13 @@
         WHERE username = #{username}
     </select>
 
+    <select id="findByUsernamePrefix" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE username LIKE CONCAT(#{prefix}, '%')
+        ORDER BY id
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO user (username, password, email, role, create_time, update_time)
         VALUES (#{username}, #{password}, #{email}, #{role}, #{createTime}, #{updateTime})

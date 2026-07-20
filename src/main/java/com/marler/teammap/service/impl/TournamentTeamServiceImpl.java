@@ -4,9 +4,11 @@ import com.marler.teammap.dto.response.TournamentTeamInfoVO;
 import com.marler.teammap.dto.response.TournamentTeamSimpleVO;
 import com.marler.teammap.mapper.TeamMapper;
 import com.marler.teammap.mapper.TournamentMapper;
+import com.marler.teammap.mapper.TournamentPlayerMapper;
 import com.marler.teammap.mapper.TournamentTeamMapper;
 import com.marler.teammap.pojo.Team;
 import com.marler.teammap.pojo.Tournament;
+import com.marler.teammap.pojo.TournamentPlayer;
 import com.marler.teammap.pojo.TournamentTeam;
 import com.marler.teammap.service.TournamentTeamService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,9 @@ public class TournamentTeamServiceImpl implements TournamentTeamService {
 
     @Autowired
     private TeamMapper teamMapper;
+
+    @Autowired
+    private TournamentPlayerMapper tournamentPlayerMapper;
 
     @Override
     @Transactional
@@ -61,27 +66,22 @@ public class TournamentTeamServiceImpl implements TournamentTeamService {
             throw new RuntimeException("球队与赛事的运动类型不一致");
         }
 
-        // 5. 检查是否已经申请过该赛事
+        // 5. 检查是否已经关联过该赛事
         TournamentTeam existing = tournamentTeamMapper.selectByTournamentIdAndTeamId(tournamentId, teamId);
         if (existing != null) {
             if (existing.getStatus() == 1) {
-                log.warn("申请失败：该球队已申请过此赛事，等待审核 - tournamentId: {}, teamId: {}",
+                log.warn("申请失败：该球队已在赛事中 - tournamentId: {}, teamId: {}",
                         tournamentId, teamId);
-                throw new RuntimeException("该球队已申请过此赛事，请勿重复申请");
+                throw new RuntimeException("该球队已在该赛事中，请勿重复申请");
             }
-            if (existing.getStatus() == 2) {
-                log.warn("申请失败：该球队已通过审核 - tournamentId: {}, teamId: {}",
-                        tournamentId, teamId);
-                throw new RuntimeException("该球队已通过该赛事的审核，无需重复申请");
-            }
-            // status == 3（未通过/驳回）允许重新申请，将状态更新为 1（申请中）
+            // status == 3（未通过/驳回）允许重新申请
             tournamentTeamMapper.updateStatus(existing.getId(), 1);
             log.info("球队重新申请赛事成功 - id: {}, tournamentId: {}, teamId: {}",
                     existing.getId(), tournamentId, teamId);
             return;
         }
 
-        // 6. 创建申请记录，status 默认为 1（申请中）
+        // 6. 创建关联记录，status = 1（已加入）
         TournamentTeam tournamentTeam = new TournamentTeam();
         tournamentTeam.setTournamentId(tournamentId);
         tournamentTeam.setTeamId(teamId);
@@ -145,8 +145,24 @@ public class TournamentTeamServiceImpl implements TournamentTeamService {
                     userId, tournament.getCreatorId());
             throw new RuntimeException("只能审批自己创建的赛事中的申请");
         }
-        // 6. 更新状态
+        // 6. 更新 TournamentTeam 状态
         tournamentTeamMapper.updateStatus(relId, status);
+
+        // 7. 级联更新该球队下所有球员的 TournamentPlayer 状态
+        Integer playerTargetStatus;
+        if (status == 2) {
+            // 审批通过：球员状态改为 1（可出战）
+            playerTargetStatus = 1;
+        } else {
+            // 审批拒绝：球员状态改为 3（退出）
+            playerTargetStatus = 3;
+        }
+        Long tournamentId = tournamentTeam.getTournamentId();
+        Long teamId = tournamentTeam.getTeamId();
+        tournamentPlayerMapper.updateStatusByTournamentIdAndTeamId(tournamentId, teamId, playerTargetStatus);
+        log.info("级联更新球员状态完成 - tournamentId: {}, teamId: {}, playerTargetStatus: {}",
+                tournamentId, teamId, playerTargetStatus);
+
         String statusText = status == 2 ? "已通过" : "未通过";
         log.info("审批球队申请成功 - relId: {}, status: {}({}), operatorId: {}",
                 relId, status, statusText, userId);
@@ -209,28 +225,23 @@ public class TournamentTeamServiceImpl implements TournamentTeamService {
         // 6. 检查是否已经存在关联记录
         TournamentTeam existing = tournamentTeamMapper.selectByTournamentIdAndTeamId(tournamentId, teamId);
         if (existing != null) {
-            if (existing.getStatus() == 2) {
-                log.warn("邀请失败：该球队已通过审核，已在赛事中 - tournamentId: {}, teamId: {}",
+            if (existing.getStatus() == 1) {
+                log.warn("邀请失败：该球队已在赛事中 - tournamentId: {}, teamId: {}",
                         tournamentId, teamId);
                 throw new RuntimeException("该球队已在赛事中，请勿重复邀请");
             }
-            if (existing.getStatus() == 1) {
-                log.warn("邀请失败：该球队已被邀请，等待确认 - tournamentId: {}, teamId: {}",
-                        tournamentId, teamId);
-                throw new RuntimeException("该球队已被邀请，请勿重复邀请");
-            }
-            // status == 3（未通过/驳回），允许重新邀请，直接更新为已通过
-            tournamentTeamMapper.updateStatus(existing.getId(), 2);
+            // status == 3（未通过/驳回），允许重新邀请，直接更新为已加入(1)
+            tournamentTeamMapper.updateStatus(existing.getId(), 1);
             log.info("主办方重新邀请球队成功 - id: {}, tournamentId: {}, teamId: {}",
                     existing.getId(), tournamentId, teamId);
             return;
         }
 
-        // 7. 创建邀请记录，直接设为已通过(2)
+        // 7. 创建邀请记录，直接设为已加入(1)
         TournamentTeam tournamentTeam = new TournamentTeam();
         tournamentTeam.setTournamentId(tournamentId);
         tournamentTeam.setTeamId(teamId);
-        tournamentTeam.setStatus(2);
+        tournamentTeam.setStatus(1);
         tournamentTeamMapper.insert(tournamentTeam);
 
         log.info("主办方邀请球队加入赛事成功 - id: {}, tournamentId: {}, teamId: {}",
@@ -288,16 +299,12 @@ public class TournamentTeamServiceImpl implements TournamentTeamService {
                 // 检查是否已经存在关联记录
                 TournamentTeam existing = tournamentTeamMapper.selectByTournamentIdAndTeamId(tournamentId, teamId);
                 if (existing != null) {
-                    if (existing.getStatus() == 2) {
+                    if (existing.getStatus() == 1) {
                         failList.add(team.getName() + "(" + team.getShortName() + ")已在赛事中");
                         continue;
                     }
-                    if (existing.getStatus() == 1) {
-                        failList.add(team.getName() + "(" + team.getShortName() + ")已被邀请，请勿重复邀请");
-                        continue;
-                    }
-                    // status == 3，重新邀请
-                    tournamentTeamMapper.updateStatus(existing.getId(), 2);
+                    // status == 3（未通过/驳回），重新邀请
+                    tournamentTeamMapper.updateStatus(existing.getId(), 1);
                     successList.add(team.getName() + "(" + team.getShortName() + ")");
                     continue;
                 }
@@ -306,7 +313,7 @@ public class TournamentTeamServiceImpl implements TournamentTeamService {
                 TournamentTeam tournamentTeam = new TournamentTeam();
                 tournamentTeam.setTournamentId(tournamentId);
                 tournamentTeam.setTeamId(teamId);
-                tournamentTeam.setStatus(2);
+                tournamentTeam.setStatus(1);
                 tournamentTeamMapper.insert(tournamentTeam);
                 successList.add(team.getName() + "(" + team.getShortName() + ")");
 
@@ -344,7 +351,7 @@ public class TournamentTeamServiceImpl implements TournamentTeamService {
         }
 
         TournamentTeam existing = tournamentTeamMapper.selectByTournamentIdAndTeamId(tournamentId, teamId);
-        return existing != null && existing.getStatus() == 2;
+        return existing != null && existing.getStatus() == 1;
     }
 
     @Override

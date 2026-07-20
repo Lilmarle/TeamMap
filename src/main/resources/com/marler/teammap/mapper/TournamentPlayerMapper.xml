@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.marler.teammap.mapper.TournamentPlayerMapper">
+
+    <resultMap id="BaseResultMap" type="com.marler.teammap.pojo.TournamentPlayer">
+        <id column="id" property="id"/>
+        <result column="tournament_id" property="tournamentId"/>
+        <result column="user_id" property="userId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, tournament_id, user_id, status, create_time, update_time
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tournament_player (tournament_id, user_id, status)
+        VALUES (#{tournamentId}, #{userId}, #{status})
+    </insert>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tournament_player (tournament_id, user_id, status)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.tournamentId}, #{item.userId}, #{item.status})
+        </foreach>
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tournament_player
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByTournamentIdAndUserId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tournament_player
+        WHERE tournament_id = #{tournamentId} AND user_id = #{userId}
+    </select>
+
+    <select id="selectByTournamentId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tournament_player
+        WHERE tournament_id = #{tournamentId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByTournamentIdAndUserIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tournament_player
+        WHERE tournament_id = #{tournamentId}
+        AND user_id IN
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </select>
+
+    <update id="updateStatus">
+        UPDATE tournament_player
+        SET status = #{status}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatusByTournamentIdAndTeamId">
+        UPDATE tournament_player tp
+        INNER JOIN player p ON tp.user_id = p.user_id
+        INNER JOIN team_member tm ON p.tm_id = tm.id
+        SET tp.status = #{status}, tp.update_time = NOW()
+        WHERE tp.tournament_id = #{tournamentId}
+          AND tm.team_id = #{teamId}
+    </update>
+
+    <!-- ====== 视图查询 ====== -->
+
+    <select id="selectInfoByTournamentId"
+            resultType="com.marler.teammap.dto.response.TournamentPlayerInfoVO">
+        SELECT
+            rel_id AS relId,
+            tournament_id AS tournamentId,
+            tournament_name AS tournamentName,
+            user_id AS userId,
+            username,
+            jersey_name AS jerseyName,
+            jersey_number AS jerseyNumber,
+            position,
+            team_id AS teamId,
+            team_name AS teamName,
+            team_short_name AS teamShortName,
+            team_logo AS teamLogo,
+            team_gender AS teamGender,
+            team_gender_name AS teamGenderName,
+            team_sport_type AS teamSportType,
+            team_sport_type_name AS teamSportTypeName,
+            role,
+            role_name AS roleName,
+            portrait_photo AS portraitPhoto,
+            player_status AS playerStatus,
+            player_status_name AS playerStatusName,
+            register_time AS registerTime
+        FROM v_tournament_player_info
+        WHERE tournament_id = #{tournamentId}
+        ORDER BY register_time DESC
+    </select>
+
+    <select id="selectInfoByTournamentIdAndTeamId"
+            resultType="com.marler.teammap.dto.response.TournamentPlayerInfoVO">
+        SELECT
+            rel_id AS relId,
+            tournament_id AS tournamentId,
+            tournament_name AS tournamentName,
+            user_id AS userId,
+            username,
+            jersey_name AS jerseyName,
+            jersey_number AS jerseyNumber,
+            position,
+            team_id AS teamId,
+            team_name AS teamName,
+            team_short_name AS teamShortName,
+            team_logo AS teamLogo,
+            team_gender AS teamGender,
+            team_gender_name AS teamGenderName,
+            team_sport_type AS teamSportType,
+            team_sport_type_name AS teamSportTypeName,
+            role,
+            role_name AS roleName,
+            portrait_photo AS portraitPhoto,
+            player_status AS playerStatus,
+            player_status_name AS playerStatusName,
+            register_time AS registerTime
+        FROM v_tournament_player_info
+        WHERE tournament_id = #{tournamentId}
+          AND team_id = #{teamId}
+        ORDER BY register_time DESC
+    </select>
+
+</mapper>

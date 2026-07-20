@@ -36,17 +36,38 @@
         <el-input v-model="form.location" />
       </el-form-item>
     </el-form>
+
+    <!-- 事件管理入口 -->
+    <div class="events-entry">
+      <el-button
+        size="small"
+        type="primary"
+        text
+        @click="showEventsDialog = true"
+      >
+        ⚽ 比赛事件管理
+      </el-button>
+    </div>
+
     <template #footer>
       <el-button size="small" @click="$emit('update:visible', false)">取消</el-button>
       <el-button size="small" type="primary" :loading="saving" @click="handleSave">保存</el-button>
     </template>
   </el-dialog>
+
+  <!-- 比赛事件管理对话框 -->
+  <EventMatchEvents
+    v-model:visible="showEventsDialog"
+    :match="match"
+    @updated="$emit('updated')"
+  />
 </template>
 
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import { tournamentApi } from '@/api/tournament'
 import { ElMessage } from 'element-plus'
+import EventMatchEvents from './EventMatchEvents.vue'
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
@@ -56,6 +77,7 @@ const props = defineProps({
 const emit = defineEmits(['update:visible', 'updated'])
 
 const saving = ref(false)
+const showEventsDialog = ref(false)
 
 const form = reactive({
   team1Score: 0,
@@ -110,5 +132,13 @@ async function handleSave() {
 .form-team-name {
   font-weight: 500;
   font-size: 14px;
+}
+
+.events-entry {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border, #f0f0f0);
 }
 </style>

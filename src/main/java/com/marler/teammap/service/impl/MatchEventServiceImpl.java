@@ -2,6 +2,7 @@ package com.marler.teammap.service.impl;
 
 import com.marler.teammap.dto.request.AddMatchEventRequest;
 import com.marler.teammap.dto.response.MatchEventStatsVO;
+import com.marler.teammap.dto.response.MatchEventVO;
 import com.marler.teammap.mapper.MatchEventMapper;
 import com.marler.teammap.mapper.MatchMapper;
 import com.marler.teammap.pojo.Match;
@@ -164,6 +165,11 @@ public class MatchEventServiceImpl implements MatchEventService {
     @Override
     public List<MatchEvent> getByMatchId(Integer matchId) {
         return matchEventMapper.selectByMatchId(matchId);
+    }
+
+    @Override
+    public List<MatchEventVO> getEventVOByMatchId(Integer matchId) {
+        return matchEventMapper.selectEventVOByMatchId(matchId);
     }
 
     @Override

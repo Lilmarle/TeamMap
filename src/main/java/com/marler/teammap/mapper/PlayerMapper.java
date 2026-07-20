@@ -16,4 +16,6 @@ public interface PlayerMapper {
     PlayerInfoVO selectPlayerInfoById(@Param("playerId") Integer playerId);
 
     List<PlayerInfoVO> selectPlayerInfoByTeamId(@Param("teamId") Integer teamId);
+
+    List<PlayerInfoVO> selectAllPlayerInfo();
 }

@@ -79,4 +79,32 @@
         ORDER BY match_id ASC, event_time ASC
     </select>
 
+    <!-- 根据比赛ID查询事件列表（v_match_event 视图，含球员名称） -->
+    <select id="selectEventVOByMatchId"
+            resultType="com.marler.teammap.dto.response.MatchEventVO">
+        SELECT
+            event_id AS eventId,
+            match_id AS matchId,
+            sport_type AS sportType,
+            sport_type_name AS sportTypeName,
+            team_id AS teamId,
+            team_name AS teamName,
+            player_id AS playerId,
+            player_name AS playerName,
+            player_jersey AS playerJersey,
+            related_player_id AS relatedPlayerId,
+            related_player_name AS relatedPlayerName,
+            related_player_jersey AS relatedPlayerJersey,
+            type,
+            type_name AS typeName,
+            description,
+            event_time AS eventTime,
+            event_time_display AS eventTimeDisplay,
+            extra_info AS extraInfo,
+            create_time AS createTime
+        FROM v_match_event
+        WHERE match_id = #{matchId}
+        ORDER BY event_time ASC, event_id ASC
+    </select>
+
 </mapper>

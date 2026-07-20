@@ -3,6 +3,7 @@ package com.marler.teammap.controller;
 import com.marler.teammap.common.Result;
 import com.marler.teammap.dto.request.AddMatchEventRequest;
 import com.marler.teammap.dto.response.MatchEventStatsVO;
+import com.marler.teammap.dto.response.MatchEventVO;
 import com.marler.teammap.pojo.MatchEvent;
 import com.marler.teammap.service.MatchEventService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +31,12 @@ public class MatchEventController {
     }
 
     /**
-     * 根据比赛ID查询所有事件
+     * 根据比赛ID查询所有事件（含球员名称、球衣号码等）
      * GET /api/match-events/{matchId}
      */
     @GetMapping("/{matchId}")
-    public Result<List<MatchEvent>> getByMatchId(@PathVariable Integer matchId) {
-        List<MatchEvent> events = matchEventService.getByMatchId(matchId);
+    public Result<List<MatchEventVO>> getByMatchId(@PathVariable Integer matchId) {
+        List<MatchEventVO> events = matchEventService.getEventVOByMatchId(matchId);
         return Result.success(events);
     }
     /**
