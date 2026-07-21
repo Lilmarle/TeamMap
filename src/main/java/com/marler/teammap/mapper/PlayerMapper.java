@@ -11,9 +11,15 @@ import java.util.List;
 public interface PlayerMapper {
     void insert(Player player);
 
+    void update(Player player);
+
+    void deleteById(@Param("id") Integer id);
+
     Player selectById(@Param("id") Integer id);
 
     PlayerInfoVO selectPlayerInfoById(@Param("playerId") Integer playerId);
+
+    PlayerInfoVO selectPlayerInfoByUserId(@Param("userId") Integer userId);
 
     List<PlayerInfoVO> selectPlayerInfoByTeamId(@Param("teamId") Integer teamId);
 

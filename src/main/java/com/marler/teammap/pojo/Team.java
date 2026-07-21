@@ -33,8 +33,8 @@ public class Team {
     private String name;
     private String logo;
     private String description;
-    private Integer type;
-    private Integer gender;
+    private Integer type;            // 运动类型：1-足球，2-篮球，3-排球
+    private Integer gender;          // 性别：1-男，2-女
     private String shortName;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

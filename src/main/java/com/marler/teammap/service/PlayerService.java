@@ -8,9 +8,15 @@ import java.util.List;
 public interface PlayerService {
     void add(Player player);
 
+    void update(Player player);
+
+    void deleteById(Integer id);
+
     Player getById(Integer id);
 
     PlayerInfoVO getPlayerInfoById(Integer id);
+
+    PlayerInfoVO getPlayerInfoByUserId(Integer userId);
 
     List<PlayerInfoVO> getAllPlayers();
 

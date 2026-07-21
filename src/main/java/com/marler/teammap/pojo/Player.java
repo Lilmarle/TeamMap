@@ -37,7 +37,7 @@ public class Player {
     private String jerseyName;     // 球衣名称（印名）
     private Integer jerseyNumber;  // 球衣号码（1-99）
     private String position;       // 位置
-    private Integer status;
+    private Integer status;        // 状态：1-可出战，2-禁赛中
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

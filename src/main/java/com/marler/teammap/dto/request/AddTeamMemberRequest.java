@@ -10,6 +10,7 @@ public class AddTeamMemberRequest {
     // TeamMember 字段
     private Long teamId;            // 队伍ID
     private Long userId;            // 用户ID
+    private Integer role;           // 角色：1-队员，2-队长，3-教练，4-领队
     private String portraitPhoto;   // 定妆照URL
 
     // Player 字段

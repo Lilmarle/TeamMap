@@ -3,20 +3,23 @@
     <template #default="{ activeTab }">
       <EventShowArea v-if="activeTab === 'events'" />
       <TeamShowArea v-if="activeTab === 'teams'" />
+      <PlayerShowArea v-if="activeTab === 'players'" />
     </template>
   </HomeLayout>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { Trophy, UserFilled } from '@element-plus/icons-vue'
+import { Trophy, UserFilled, User } from '@element-plus/icons-vue'
 import HomeLayout from '@/components/General/HomeLayout.vue'
 import EventShowArea from '@/components/HomeSystemAdmin/Events/EventShowArea.vue'
 import TeamShowArea from '@/components/HomeSystemAdmin/Team/TeamShowArea.vue'
+import PlayerShowArea from '@/components/HomeSystemAdmin/Players/PlayerShow.vue'
 
 const TABS = [
   { key: 'events', icon: Trophy, label: '赛事' },
-  { key: 'teams', icon: UserFilled, label: '球队' }
+  { key: 'teams', icon: UserFilled, label: '球队' },
+  { key: 'players', icon: User, label: '球员' }
 ]
 
 const activeTab = ref('events')

@@ -23,6 +23,16 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
+    public void update(Player player) {
+        playerMapper.update(player);
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+        playerMapper.deleteById(id);
+    }
+
+    @Override
     public Player getById(Integer id) {
         return playerMapper.selectById(id);
     }
@@ -31,6 +41,12 @@ public class PlayerServiceImpl implements PlayerService {
     public PlayerInfoVO getPlayerInfoById(Integer id) {
         log.debug("查询球员信息 - playerId: {}", id);
         return playerMapper.selectPlayerInfoById(id);
+    }
+
+    @Override
+    public PlayerInfoVO getPlayerInfoByUserId(Integer userId) {
+        log.debug("按用户ID查询球员信息 - userId: {}", userId);
+        return playerMapper.selectPlayerInfoByUserId(userId);
     }
 
     @Override

@@ -6,8 +6,28 @@
 
     <!-- 插入队伍成员 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO team_member (team_id, user_id, portrait_photo, role)
-        VALUES (#{teamId}, #{userId}, #{portraitPhoto}, #{role})
+        INSERT INTO team_member (team_id, user_id, portrait_photo, role, status)
+        VALUES (#{teamId}, #{userId}, #{portraitPhoto}, #{role}, #{status})
     </insert>
+
+    <!-- 根据ID查询队伍成员 -->
+    <select id="selectById" resultType="com.marler.teammap.pojo.TeamMember">
+        SELECT * FROM team_member WHERE id = #{id}
+    </select>
+
+    <!-- 更新队伍成员状态 -->
+    <update id="updateStatus">
+        UPDATE team_member SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <!-- 查询用户活跃的成员记录（status != 3 已退出） -->
+    <select id="selectActiveByUserId" resultType="com.marler.teammap.pojo.TeamMember">
+        SELECT * FROM team_member WHERE user_id = #{userId} AND status != 3
+    </select>
+
+    <!-- 根据队伍ID查询所有成员 -->
+    <select id="selectByTeamId" resultType="com.marler.teammap.pojo.TeamMember">
+        SELECT * FROM team_member WHERE team_id = #{teamId}
+    </select>
 
 </mapper>

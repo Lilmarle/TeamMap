@@ -36,4 +36,9 @@
         WHERE team_id = #{teamId}
     </update>
 
+    <!-- 根据队伍ID查询队伍级别 -->
+    <select id="selectRankByTeamId" resultType="java.lang.Integer">
+        SELECT `rank` FROM team_college_rel WHERE team_id = #{teamId}
+    </select>
+
 </mapper>

@@ -35,6 +35,7 @@ public class TeamMember {
     private Long userId;              // 用户ID，关联user表
     private String portraitPhoto;     // 定妆照URL地址
     private Integer role;             // 角色：1-队员，2-队长，3-教练，4-领队
+    private Integer status;           // 状态：1-申请中，2-已加入，3-已退出
     private LocalDateTime joinTime;   // 加入时间
     private LocalDateTime updateTime; // 修改时间
 }
