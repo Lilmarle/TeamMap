@@ -84,12 +84,12 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import AsyncContent from '@/components/General/AsyncContent.vue'
 import EventToolbar from './EventToolbar.vue'
 import EventTabs from './EventTabs.vue'
-import EventTeams from './EventTeams.vue'
-import EventGroup from './EventGroup.vue'
-import EventKnockout from './EventKnockout.vue'
-import EventSchedule from './EventSchedule.vue'
+import EventTeams from './Team/EventTeams.vue'
+import EventGroup from './Group/EventGroup.vue'
+import EventKnockout from './Knockout/EventKnockout.vue'
+import EventSchedule from './Match/EventSchedule.vue'
 import AddEvent from '@/components/General/AddEvent.vue'
-import EventInvite from './EventInvite.vue'
+import EventInvite from './Team/EventInvite.vue'
 
 const events = ref([])
 const selectedEventId = ref(null)

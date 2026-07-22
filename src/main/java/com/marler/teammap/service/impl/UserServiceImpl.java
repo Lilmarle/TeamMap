@@ -87,8 +87,19 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("用户名或密码错误");
         }
 
-        // 验证密码
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+        // 验证密码（兼容 BCrypt 加密密码和明文密码）
+        String storedPassword = user.getPassword();
+        boolean passwordMatch;
+
+        if (storedPassword != null && storedPassword.startsWith("$2a$")) {
+            // BCrypt 加密密码
+            passwordMatch = passwordEncoder.matches(password, storedPassword);
+        } else {
+            // 明文密码直接比较
+            passwordMatch = password.equals(storedPassword);
+        }
+
+        if (!passwordMatch) {
             throw new RuntimeException("用户名或密码错误");
         }
 

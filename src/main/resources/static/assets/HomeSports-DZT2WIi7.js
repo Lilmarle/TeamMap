@@ -1,0 +1,1 @@
+import{H as e}from"./HomeLayout-D1lYCz0v.js";import{_ as t}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{b as r,w as a,r as s,a as _,d as c}from"./index-CaF296N4.js";const p={__name:"HomeSports",setup(m){return(n,u)=>{const o=s("router-view");return _(),r(e,null,{default:a(()=>[c(o)]),_:1})}}},d=t(p,[["__scopeId","data-v-39418a09"]]);export{d as default};

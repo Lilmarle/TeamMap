@@ -13,4 +13,12 @@ public interface TeamMemberService {
     TeamMember getById(Long id);
 
     List<TeamMember> getMembersByTeamId(Long teamId);
+
+    /**
+     * 查询用户的活跃队伍成员记录
+     *
+     * @param userId 用户ID
+     * @return 活跃的成员记录列表
+     */
+    List<TeamMember> getActiveByUserId(Long userId);
 }

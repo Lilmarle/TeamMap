@@ -8,7 +8,7 @@ import com.marler.teammap.pojo.Team;
 import java.util.List;
 
 public interface TeamService {
-    void add(AddTeamRequest request);
+    void add(AddTeamRequest request, Long creatorUserId);
 
     void update(UpdateTeamRequest request);
 

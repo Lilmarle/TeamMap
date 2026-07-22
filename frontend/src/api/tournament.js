@@ -67,6 +67,26 @@ export const tournamentApi = {
     return request.delete(`/tournament-teams/${tournamentId}/${teamId}`)
   },
 
+  /**
+   * 审批球队申请（通过/驳回）
+   * @param {number} relId - 关联记录ID
+   * @param {number} status - 目标状态：2-已通过，3-未通过
+   * @returns {Promise}
+   */
+  approveTeam(relId, status) {
+    return request.patch(`/tournament-teams/${relId}/status`, { status })
+  },
+
+  /**
+   * 按球队查询赛事的球员报名信息
+   * @param {number} tournamentId - 赛事ID
+   * @param {number} teamId - 球队ID
+   * @returns {Promise}
+   */
+  getTeamPlayers(tournamentId, teamId) {
+    return request.get('/tournament-players/by-team', { params: { tournamentId, teamId } })
+  },
+
   // ==================== 小组赛相关 ====================
 
   /**

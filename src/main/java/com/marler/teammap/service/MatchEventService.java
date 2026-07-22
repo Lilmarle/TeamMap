@@ -1,6 +1,7 @@
 package com.marler.teammap.service;
 
 import com.marler.teammap.dto.request.AddMatchEventRequest;
+import com.marler.teammap.dto.request.UpdateMatchEventRequest;
 import com.marler.teammap.dto.response.MatchEventStatsVO;
 import com.marler.teammap.dto.response.MatchEventVO;
 import com.marler.teammap.pojo.MatchEvent;
@@ -13,6 +14,16 @@ public interface MatchEventService {
      * 添加比赛事件
      */
     MatchEvent add(AddMatchEventRequest request);
+
+    /**
+     * 修改比赛事件
+     */
+    MatchEvent update(Long id, UpdateMatchEventRequest request);
+
+    /**
+     * 删除比赛事件
+     */
+    void delete(Long id);
 
     /**
      * 根据比赛ID查询所有事件

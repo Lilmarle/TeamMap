@@ -122,8 +122,8 @@ public class TeamController {
             return Result.error("权限不足，" + allowedDesc);
         }
 
-        teamService.add(request);
-        log.info("添加球队成功 - name: {}, id: {}", team.getName(), team.getId());
+        teamService.add(request, userId);
+        log.info("添加球队成功 - name: {}, id: {}, creatorId: {}", team.getName(), team.getId(), userId);
         return Result.success("添加球队成功");
     }
 

@@ -1,0 +1,1 @@
+import{S as r}from"./index-CNx6MfrM.js";const l={getAllPlayers(){return r.get("/players")},getPlayersByTeam(e){return r.get(`/players/by-team?teamId=${e}`)},getPlayerByUserId(e){return r.get(`/players/by-user?userId=${e}`)},updatePlayer(e,t){return r.put(`/players/${e}`,t)},deletePlayer(e){return r.delete(`/players/${e}`)}};export{l as p};

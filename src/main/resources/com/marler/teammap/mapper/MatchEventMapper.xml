@@ -107,4 +107,24 @@
         ORDER BY event_time ASC, event_id ASC
     </select>
 
+    <update id="updateById">
+        UPDATE match_event
+        <set>
+            <if test="matchId != null">match_id = #{matchId},</if>
+            <if test="sportType != null">sport_type = #{sportType},</if>
+            <if test="teamId != null">team_id = #{teamId},</if>
+            <if test="playerId != null">player_id = #{playerId},</if>
+            <if test="relatedPlayerId != null">related_player_id = #{relatedPlayerId},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="eventTime != null">event_time = #{eventTime},</if>
+            <if test="extraInfo != null">extra_info = #{extraInfo},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM match_event WHERE id = #{id}
+    </delete>
+
 </mapper>

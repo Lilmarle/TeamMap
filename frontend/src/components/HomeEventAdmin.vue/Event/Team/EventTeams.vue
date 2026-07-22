@@ -53,29 +53,34 @@
         <el-table-column label="申请时间" width="180" prop="applyTime" />
         <el-table-column label="操作" width="100" align="center">
           <template #default="{ row }">
-            <el-popconfirm
-              title="确定要移除此球队吗？"
-              confirm-button-text="确定移除"
-              cancel-button-text="取消"
-              confirm-button-type="danger"
-              @confirm="handleRemoveTeam(row)"
+            <el-button
+              type="primary"
+              size="small"
+              :icon="Edit"
+              @click="handleEditTeam(row)"
             >
-              <template #reference>
-                <el-button type="danger" size="small" :icon="Delete" circle />
-              </template>
-            </el-popconfirm>
+              编辑
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
     </AsyncContent>
+
+    <!-- 球队编辑对话框（准入/拒绝 + 查看球员） -->
+    <EventTeamEdit
+      v-model:visible="editDialogVisible"
+      :team="currentTeam"
+      :tournament-id="tournamentId"
+      @refresh="$emit('refresh')"
+    />
   </div>
 </template>
 
 <script setup>
-import { Delete } from '@element-plus/icons-vue'
-import { tournamentApi } from '@/api/tournament'
-import { ElMessage } from 'element-plus'
+import { ref } from 'vue'
+import { Edit } from '@element-plus/icons-vue'
 import AsyncContent from '@/components/General/AsyncContent.vue'
+import EventTeamEdit from './EventTeamEdit.vue'
 
 /** 运动类型标签颜色映射 */
 const SPORT_TAG_MAP = { 1: '', 2: 'success', 3: 'warning' }
@@ -101,28 +106,19 @@ function getTeamStatusTagType(status) {
   return TEAM_STATUS_TAG_MAP[status] || 'info'
 }
 
-import { onMounted, watch } from 'vue'
+// ==================== 编辑对话框 ====================
 
-/** 调试：检查数据 */
-watch(() => props.teams, (val) => {
-  if (val && val.length > 0) {
-    console.log('EventTeams 数据样例:', JSON.stringify(val[0], null, 2))
-  }
-}, { immediate: true })
+/** 编辑对话框可见性 */
+const editDialogVisible = ref(false)
+/** 当前选中的球队 */
+const currentTeam = ref(null)
 
 /**
- * 从赛事中移除球队
+ * 打开球队编辑对话框
  */
-async function handleRemoveTeam(row) {
-  if (!props.tournamentId || !row.teamId) return
-
-  try {
-    await tournamentApi.removeTeam(props.tournamentId, row.teamId)
-    ElMessage.success(`已移除球队「${row.teamName}」`)
-    emit('refresh')
-  } catch (e) {
-    ElMessage.error(e.message || '移除球队失败')
-  }
+function handleEditTeam(row) {
+  currentTeam.value = row
+  editDialogVisible.value = true
 }
 </script>
 

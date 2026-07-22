@@ -40,6 +40,11 @@ public class TeamMemberServiceImpl implements TeamMemberService {
     }
 
     @Override
+    public List<TeamMember> getActiveByUserId(Long userId) {
+        return teamMemberMapper.selectActiveByUserId(userId);
+    }
+
+    @Override
     @Transactional
     public void quit(Long memberId) {
         teamMemberMapper.updateStatus(memberId, 3);

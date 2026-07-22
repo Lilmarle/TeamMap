@@ -1,0 +1,1 @@
+import{S as t}from"./index-CNx6MfrM.js";const m={getAllTeams(){return t.get("/teams")},getTeamsByType(e){return t.get(`/teams/type/${e}`)},addTeam(e){return t.post("/teams",e)},updateTeam(e){return t.put("/teams/"+e.teamId,e)},deleteTeam(e){return t.delete("/teams/"+e)}};export{m as t};

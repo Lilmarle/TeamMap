@@ -1,0 +1,1 @@
+import{H as e}from"./HomeLayout-D7aa3RDd.js";import{_ as t}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{b as r,r as a,a as s,w as _,d as c}from"./index-BFNMrSpt.js";const m={__name:"HomeNormal",setup(n){return(p,l)=>{const o=a("router-view");return s(),r(e,null,{default:_(()=>[c(o)]),_:1})}}},d=t(m,[["__scopeId","data-v-5cfe49e8"]]);export{d as default};

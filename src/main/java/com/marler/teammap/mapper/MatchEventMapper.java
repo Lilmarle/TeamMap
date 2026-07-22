@@ -13,6 +13,12 @@ public interface MatchEventMapper {
 
     void insert(MatchEvent matchEvent);
 
+    void updateById(MatchEvent matchEvent);
+
+    void deleteById(@Param("id") Long id);
+
+    MatchEvent selectById(@Param("id") Long id);
+
     List<MatchEvent> selectByMatchId(@Param("matchId") Integer matchId);
 
     List<MatchEventStatsVO> selectEventStatsByMatchId(@Param("matchId") Integer matchId);

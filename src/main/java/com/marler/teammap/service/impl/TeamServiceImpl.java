@@ -4,7 +4,9 @@ import com.marler.teammap.dto.request.AddTeamRequest;
 import com.marler.teammap.dto.request.UpdateTeamRequest;
 import com.marler.teammap.dto.response.TeamInfoVO;
 import com.marler.teammap.mapper.TeamMapper;
+import com.marler.teammap.mapper.TeamMemberMapper;
 import com.marler.teammap.pojo.Team;
+import com.marler.teammap.pojo.TeamMember;
 import com.marler.teammap.pojo.TeamRollegeRel;
 import com.marler.teammap.service.TeamRollegeRelService;
 import com.marler.teammap.service.TeamService;
@@ -24,12 +26,23 @@ public class TeamServiceImpl implements TeamService {
     private TeamMapper teamMapper;
 
     @Autowired
+    private TeamMemberMapper teamMemberMapper;
+
+    @Autowired
     private TeamRollegeRelService teamRollegeRelService;
 
     //  创建球队
     @Override
     @Transactional
-    public void add(AddTeamRequest request) {
+    public void add(AddTeamRequest request, Long creatorUserId) {
+        // 0. 检测用户是否已有队伍成员记录（是否已加入或创建过队伍）
+        List<TeamMember> existingMemberships = teamMemberMapper.selectActiveByUserId(creatorUserId);
+        if (existingMemberships != null && !existingMemberships.isEmpty()) {
+            log.warn("创建球队失败：用户已存在队伍成员记录 - userId: {}, existingCount: {}",
+                    creatorUserId, existingMemberships.size());
+            throw new RuntimeException("您已加入或创建过队伍，一个用户只能拥有一支队伍");
+        }
+
         Team team = request.getTeam();
 
         // 1. 插入球队
@@ -48,6 +61,16 @@ public class TeamServiceImpl implements TeamService {
             log.info("球队学院关联记录插入成功 - teamId: {}, rank: {}, collegeId: {}",
                     rel.getTeamId(), rel.getRank(), rel.getCollegeId());
         }
+
+        // 3. 自动将创建者添加为队员（角色：5-创建者，状态：2-已加入）
+        TeamMember creator = new TeamMember();
+        creator.setTeamId(team.getId());
+        creator.setUserId(creatorUserId);
+        creator.setRole(5);       // 创建者
+        creator.setStatus(2);     // 已加入
+        teamMemberMapper.insert(creator);
+        log.info("创建者自动加入球队成功 - teamId: {}, userId: {}, memberId: {}",
+                team.getId(), creatorUserId, creator.getId());
     }
 
     // 删除球队

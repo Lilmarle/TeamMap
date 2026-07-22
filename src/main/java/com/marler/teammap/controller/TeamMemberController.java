@@ -2,7 +2,9 @@ package com.marler.teammap.controller;
 
 import com.marler.teammap.common.Result;
 import com.marler.teammap.dto.request.AddTeamMemberRequest;
+import com.marler.teammap.dto.response.PlayerInfoVO;
 import com.marler.teammap.pojo.TeamMember;
+import com.marler.teammap.service.PlayerService;
 import com.marler.teammap.service.TeamMemberService;
 import com.marler.teammap.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -10,7 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -19,6 +24,9 @@ public class TeamMemberController {
 
     @Autowired
     private TeamMemberService teamMemberService;
+
+    @Autowired
+    private PlayerService playerService;
 
     /**
      * 添加队伍成员（同时创建球员记录）
@@ -94,12 +102,47 @@ public class TeamMemberController {
     }
 
     /**
+     * 查询当前用户的队伍成员信息（用于前端判断是否已加入队伍，决定显示哪个组件）
+     * <p>
+     * 返回：当前用户活跃的 TeamMember 列表
+     * - 空数组 = 用户未加入任何队伍，需要显示创建/加入队伍的组件
+     * - 非空 = 用户已加入队伍，显示队伍管理组件
+     * <p>
+     * GET /api/team-members/current
+     */
+    @GetMapping("/current")
+    public Result<List<TeamMember>> getCurrentUserMembership(
+            @RequestHeader("Authorization") String authHeader) {
+        // 1. Token 校验
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("查询当前用户队伍信息失败：未登录");
+            return Result.error("未登录");
+        }
+
+        // 2. 解析 Token
+        Claims claims;
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            claims = JwtUtil.parseToken(token);
+        } catch (Exception e) {
+            log.warn("查询当前用户队伍信息失败：Token无效 - {}", e.getMessage());
+            return Result.error("token无效或已过期");
+        }
+
+        Long userId = Long.valueOf(claims.getSubject());
+        log.info("查询当前用户队伍信息 - userId: {}", userId);
+
+        List<TeamMember> memberships = teamMemberService.getActiveByUserId(userId);
+        return Result.success(memberships);
+    }
+
+    /**
      * 查询指定球队的成员列表
      * <p>
      * GET /api/team-members/by-team?teamId=1
      */
     @GetMapping("/by-team")
-    public Result<List<TeamMember>> getMembersByTeam(@RequestParam Long teamId) {
+    public Result<List<?>> getMembersByTeam(@RequestParam Long teamId) {
         log.info("查询球队成员列表 - teamId: {}", teamId);
 
         if (teamId == null || teamId <= 0) {
@@ -107,8 +150,26 @@ public class TeamMemberController {
             return Result.error("球队ID无效");
         }
 
+        // 1. 获取所有队伍成员
         List<TeamMember> members = teamMemberService.getMembersByTeamId(teamId);
-        return Result.success(members);
+
+        // 2. 获取所有球员信息（有球员记录的成员）
+        List<PlayerInfoVO> players = playerService.getPlayersByTeamId(teamId.intValue());
+        Map<Long, PlayerInfoVO> playerMap = players.stream()
+                .collect(Collectors.toMap(PlayerInfoVO::getMemberId, p -> p, (a, b) -> a));
+
+        // 3. 合并：有球员记录的返回 PlayerInfoVO（含球衣名、号码等），否则返回 TeamMember
+        List<Object> result = new ArrayList<>(members.size());
+        for (TeamMember member : members) {
+            PlayerInfoVO playerInfo = playerMap.get(member.getId());
+            if (playerInfo != null) {
+                result.add(playerInfo);
+            } else {
+                result.add(member);
+            }
+        }
+
+        return Result.success(result);
     }
 
     /**

@@ -1,0 +1,1 @@
+import{V as t}from"./index-BJJDBT5J.js";const r={getAllTeams(){return t.get("/teams")},getTeamsByType(e){return t.get(`/teams/type/${e}`)},addTeam(e){return t.post("/teams",e)},updateTeam(e){return t.put("/teams/"+e.teamId,e)},deleteTeam(e){return t.delete("/teams/"+e)},joinTeam(e){return t.post("/team-members",e)}};export{r as t};

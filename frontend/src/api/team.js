@@ -46,5 +46,31 @@ export const teamApi = {
    */
   deleteTeam(teamId) {
     return request.delete('/teams/' + teamId)
+  },
+
+  /**
+   * 加入球队（添加队伍成员）
+   * @param {Object} data - { teamId, userId, role }
+   * @returns {Promise}
+   */
+  joinTeam(data) {
+    return request.post('/team-members', data)
+  },
+
+  /**
+   * 查询当前用户的队伍成员信息
+   * @returns {Promise<{code: number, data: Array, message: string}>}
+   */
+  getCurrentMembership() {
+    return request.get('/team-members/current')
+  },
+
+  /**
+   * 查询指定球队的成员列表
+   * @param {number} teamId - 球队ID
+   * @returns {Promise}
+   */
+  getTeamMembers(teamId) {
+    return request.get('/team-members/by-team', { params: { teamId } })
   }
 }
