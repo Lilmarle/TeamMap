@@ -20,6 +20,9 @@ public class PlayerController {
     @Autowired
     private PlayerService playerService;
 
+    @Autowired
+    private com.marler.teammap.service.TeamMemberService teamMemberService;
+
     /**
      * 查询所有球员信息
      * <p>
@@ -132,6 +135,71 @@ public class PlayerController {
         playerService.update(player);
         log.info("球员信息修改成功 - playerId: {}", id);
         return Result.success("修改成功");
+    }
+
+    /**
+     * 注册球员（创建球员记录）
+     * <p>
+     * POST /api/players
+     * <p>
+     * 为当前登录用户在选中的球队中创建球员记录。
+     * 需要当前用户已是该球队的成员（有 team_member 记录）。
+     */
+    @PostMapping
+    public Result<?> addPlayer(@RequestBody Player player,
+                               @RequestHeader("Authorization") String authHeader) {
+        log.info("注册球员请求");
+
+        // 1. Token 校验
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("注册球员失败：未登录");
+            return Result.error("未登录");
+        }
+
+        // 2. 解析 Token 获取用户信息
+        Claims claims;
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            claims = JwtUtil.parseToken(token);
+        } catch (Exception e) {
+            log.warn("注册球员失败：Token无效 - {}", e.getMessage());
+            return Result.error("token无效或已过期");
+        }
+
+        Integer currentUserId = Integer.valueOf(claims.getSubject());
+
+        // 3. 参数校验
+        if (player.getTmId() == null) {
+            log.warn("注册球员失败：缺少队伍成员关联ID");
+            return Result.error("缺少队伍成员信息");
+        }
+
+        // 4. 校验该 team_member 记录是否属于当前用户
+        com.marler.teammap.pojo.TeamMember member = 
+            teamMemberService.getById(player.getTmId().longValue());
+        if (member == null) {
+            log.warn("注册球员失败：队伍成员记录不存在 - tmId: {}", player.getTmId());
+            return Result.error("队伍成员记录不存在");
+        }
+        if (!member.getUserId().equals(currentUserId.longValue())) {
+            log.warn("注册球员失败：权限不足 - userId: {}, tmId: {}", currentUserId, player.getTmId());
+            return Result.error("权限不足，只能为自己注册球员信息");
+        }
+
+        // 5. 检查是否已存在球员记录
+        PlayerInfoVO existing = playerService.getPlayerInfoByUserId(currentUserId);
+        if (existing != null) {
+            log.warn("注册球员失败：已存在球员记录 - userId: {}", currentUserId);
+            return Result.error("已存在球员记录，请使用修改功能");
+        }
+
+        // 6. 创建球员记录
+        player.setUserId(currentUserId);
+        player.setStatus(1); // 默认可出战
+        playerService.add(player);
+        log.info("球员注册成功 - userId: {}, tmId: {}, jerseyName: {}",
+                currentUserId, player.getTmId(), player.getJerseyName());
+        return Result.success("注册成功");
     }
 
     /**

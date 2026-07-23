@@ -1,33 +1,12 @@
 <template>
   <div class="hs-my-team">
-    <!-- 球队信息头部 -->
-    <div class="team-header">
-      <el-avatar :size="56" :src="team?.teamLogo">
-        {{ team?.teamName?.charAt(0) }}
-      </el-avatar>
-      <div class="team-header-info">
-        <h3 class="team-name">{{ team?.teamName }}</h3>
-        <div class="team-meta">
-          <el-tag v-if="team?.teamShortName" size="small" type="info">
-            {{ team.teamShortName }}
-          </el-tag>
-          <el-tag :type="getSportTagType(team?.sportType)" size="small">
-            {{ team?.sportTypeName }}
-          </el-tag>
-          <el-tag v-if="team?.teamGenderName" size="small">
-            {{ team.teamGenderName }}
-          </el-tag>
-          <el-tag type="warning" effect="dark" size="small">
-            {{ team?.roleName }}
-          </el-tag>
-        </div>
-      </div>
-    </div>
+    <!-- 工具条：切换球队 + 邀请 + 修改个人信息 -->
+    <HSTools @team-changed="handleTeamSwitch" />
 
-    <!-- 横向标签页：详情、成员、比赛、训练、数据、荣誉 -->
+    <!-- 横向标签页：成员、比赛、训练、数据、荣誉 -->
     <TeamTaps v-model:activeTab="activeTab">
       <template #members>
-        <HSTeamMembers :team-id="team?.teamId" />
+        <HSTeamMembers :team-id="displayTeam?.teamId" />
       </template>
 
       <template #matches>
@@ -58,7 +37,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import HSTools from './HSTools.vue'
 import TeamTaps from './TeamTaps.vue'
 import HSTeamMembers from './HSTeamMembers.vue'
 
@@ -67,13 +47,22 @@ const props = defineProps({
   team: { type: Object, default: null }
 })
 
-/** 运动类型标签颜色映射 */
-const SPORT_TAG_MAP = { 1: '', 2: 'success', 3: 'warning' }
+const emit = defineEmits(['team-changed'])
 
-const activeTab = ref('detail')
+const activeTab = ref('members')
 
-function getSportTagType(type) {
-  return SPORT_TAG_MAP[type] || ''
+/** 本地展示的球队信息，由 team prop 初始化，后续由 HSTools 切换事件更新 */
+const displayTeam = ref(null)
+
+/** 同步外部 team prop 变化 */
+watch(() => props.team, (newTeam) => {
+  displayTeam.value = newTeam
+}, { immediate: true })
+
+/** 处理 HSTools 发出的球队切换事件 */
+function handleTeamSwitch(teamId) {
+  // 向上通知父组件切换球队，由父组件重新计算 team 数据传下来
+  emit('team-changed', teamId)
 }
 </script>
 
@@ -82,35 +71,6 @@ function getSportTagType(type) {
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.team-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-  padding: 16px 20px;
-  background: var(--color-bg-white, #fff);
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-}
-
-.team-header-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.team-name {
-  font-size: 20px;
-  font-weight: 600;
-  margin: 0 0 6px 0;
-  color: var(--color-text-primary, #303133);
-}
-
-.team-meta {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 
 .tab-placeholder {

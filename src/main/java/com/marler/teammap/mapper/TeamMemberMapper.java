@@ -17,4 +17,8 @@ public interface TeamMemberMapper {
     List<TeamMember> selectByTeamId(@Param("teamId") Long teamId);
 
     void updateStatus(@Param("id") Long id, @Param("status") Integer status);
+
+    void updatePortraitPhoto(@Param("id") Long id, @Param("portraitPhoto") String portraitPhoto);
+
+    void update(TeamMember teamMember);
 }

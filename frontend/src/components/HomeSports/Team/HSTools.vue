@@ -90,36 +90,14 @@
       </template>
     </el-dialog>
 
-    <!-- 修改个人信息对话框 -->
-    <el-dialog
+    <!-- 修改个人信息 / 注册球员 对话框 -->
+    <HSMemberEdit
       v-model="showEditDialog"
-      title="修改个人信息"
-      width="420px"
-      :close-on-click-modal="false"
-    >
-      <el-form :model="editForm" label-width="100px" size="small">
-        <el-form-item label="球衣名称">
-          <el-input v-model="editForm.jerseyName" placeholder="球衣上显示的名字" />
-        </el-form-item>
-        <el-form-item label="球衣号码">
-          <el-input-number
-            v-model="editForm.jerseyNumber"
-            :min="0"
-            :max="99"
-            style="width:100%"
-          />
-        </el-form-item>
-        <el-form-item label="场上位置">
-          <el-input v-model="editForm.position" placeholder="如：前锋、后卫" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button size="small" @click="showEditDialog = false">取消</el-button>
-        <el-button size="small" type="primary" :loading="saving" @click="handleEditInfo">
-          保存
-        </el-button>
-      </template>
-    </el-dialog>
+      :current-team="currentTeam"
+      :current-player-id="currentPlayerId"
+      :edit-form="editForm"
+      @saved="handleMemberSaved"
+    />
   </div>
 </template>
 
@@ -130,6 +108,7 @@ import { ElMessage } from 'element-plus'
 import { teamApi } from '@/api/team'
 import { playerApi } from '@/api/player'
 import { useUserStore } from '@/store/user'
+import HSMemberEdit from './HSMemberEdit.vue'
 
 const userStore = useUserStore()
 
@@ -149,8 +128,7 @@ const inviting = ref(false)
 const inviteForm = ref({ userId: null, role: 1 })
 /** 编辑状态 */
 const showEditDialog = ref(false)
-const saving = ref(false)
-const editForm = ref({ jerseyName: '', jerseyNumber: 0, position: '' })
+const editForm = ref({ jerseyName: '', jerseyNumber: 0, position: '', portraitPhoto: '' })
 /** 当前用户的球员记录ID（用于更新球员信息） */
 const currentPlayerId = ref(null)
 
@@ -170,7 +148,8 @@ const myTeams = computed(() => {
       sportTypeName: teamInfo?.sportTypeName || '',
       role: m.role,
       roleName: roleMap[m.role] || '未知',
-      memberId: m.id
+      memberId: m.id,
+      portraitPhoto: m.portraitPhoto || ''
     }
   })
 })
@@ -219,21 +198,32 @@ async function loadPlayerInfo() {
     const res = await playerApi.getPlayerByUserId(user.id)
     const playerData = res.data
     if (playerData) {
-      currentPlayerId.value = playerData.id
+      currentPlayerId.value = playerData.playerId || playerData.id
       editForm.value = {
         jerseyName: playerData.jerseyName || '',
         jerseyNumber: playerData.jerseyNumber ?? 0,
-        position: playerData.position || ''
+        position: playerData.position || '',
+        portraitPhoto: playerData.portraitPhoto || currentTeam.value?.portraitPhoto || ''
       }
     } else {
-      // 没有球员记录时清空
+      // 没有球员记录时清空，定妆照从当前球队信息中获取
       currentPlayerId.value = null
-      editForm.value = { jerseyName: '', jerseyNumber: 0, position: '' }
+      editForm.value = {
+        jerseyName: '',
+        jerseyNumber: 0,
+        position: '',
+        portraitPhoto: currentTeam.value?.portraitPhoto || ''
+      }
     }
   } catch (e) {
     console.warn('加载球员信息失败:', e)
     currentPlayerId.value = null
   }
+}
+
+/** 成员信息保存成功后重新加载球员数据 */
+function handleMemberSaved() {
+  loadPlayerInfo()
 }
 
 /** 邀请成员 */
@@ -261,29 +251,6 @@ async function handleInvite() {
     ElMessage.error(e.message || '邀请失败')
   } finally {
     inviting.value = false
-  }
-}
-
-/** 修改个人信息 */
-async function handleEditInfo() {
-  if (!currentPlayerId.value) {
-    ElMessage.warning('未找到球员记录，请先创建球员信息')
-    return
-  }
-
-  saving.value = true
-  try {
-    await playerApi.updatePlayer(currentPlayerId.value, {
-      jerseyName: editForm.value.jerseyName || undefined,
-      jerseyNumber: editForm.value.jerseyNumber ?? undefined,
-      position: editForm.value.position || undefined
-    })
-    ElMessage.success('个人信息已更新')
-    showEditDialog.value = false
-  } catch (e) {
-    ElMessage.error(e.message || '保存失败')
-  } finally {
-    saving.value = false
   }
 }
 

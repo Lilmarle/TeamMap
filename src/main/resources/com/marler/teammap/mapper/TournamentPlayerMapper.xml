@@ -109,32 +109,65 @@
     <select id="selectInfoByTournamentIdAndTeamId"
             resultType="com.marler.teammap.dto.response.TournamentPlayerInfoVO">
         SELECT
-            rel_id AS relId,
-            tournament_id AS tournamentId,
-            tournament_name AS tournamentName,
-            user_id AS userId,
-            username,
-            jersey_name AS jerseyName,
-            jersey_number AS jerseyNumber,
-            position,
-            team_id AS teamId,
-            team_name AS teamName,
-            team_short_name AS teamShortName,
-            team_logo AS teamLogo,
-            team_gender AS teamGender,
-            team_gender_name AS teamGenderName,
-            team_sport_type AS teamSportType,
-            team_sport_type_name AS teamSportTypeName,
-            role,
-            role_name AS roleName,
-            portrait_photo AS portraitPhoto,
-            player_status AS playerStatus,
-            player_status_name AS playerStatusName,
-            register_time AS registerTime
-        FROM v_tournament_player_info
-        WHERE tournament_id = #{tournamentId}
-          AND team_id = #{teamId}
-        ORDER BY register_time DESC
+            tp.id AS relId,
+            tp.tournament_id AS tournamentId,
+            t.name AS tournamentName,
+            tp.user_id AS userId,
+            u.username,
+            -- player 字段（如果有球员记录）
+            p.jersey_name AS jerseyName,
+            p.jersey_number AS jerseyNumber,
+            p.position,
+            -- team 字段
+            team.id AS teamId,
+            team.name AS teamName,
+            team.short_name AS teamShortName,
+            team.logo AS teamLogo,
+            team.gender AS teamGender,
+            CASE team.gender
+                WHEN 1 THEN '男'
+                WHEN 2 THEN '女'
+                WHEN 3 THEN '混合'
+                ELSE '未知'
+                END AS teamGenderName,
+            team.type AS teamSportType,
+            CASE team.type
+                WHEN 1 THEN '足球'
+                WHEN 2 THEN '篮球'
+                WHEN 3 THEN '排球'
+                ELSE '未知'
+                END AS teamSportTypeName,
+            -- team_member 字段（直接从 tm 获取，不经过 player）
+            tm.role,
+            CASE tm.role
+                WHEN 1 THEN '队员'
+                WHEN 2 THEN '队长'
+                WHEN 3 THEN '教练'
+                WHEN 4 THEN '领队'
+                ELSE '未知'
+                END AS roleName,
+            tm.portrait_photo AS portraitPhoto,
+            -- tournament_player 字段
+            tp.status AS playerStatus,
+            CASE tp.status
+                WHEN 0 THEN '审核中'
+                WHEN 1 THEN '可出战'
+                WHEN 2 THEN '禁赛中'
+                WHEN 3 THEN '退出'
+                ELSE '未知'
+                END AS playerStatusName,
+            tp.create_time AS registerTime
+        FROM tournament_player tp
+                 INNER JOIN tournament t ON tp.tournament_id = t.id
+                 INNER JOIN user u ON tp.user_id = u.id
+                 INNER JOIN team ON team.id = #{teamId}
+                 LEFT JOIN team_member tm ON tm.user_id = tp.user_id AND tm.team_id = #{teamId}
+                 LEFT JOIN player p ON p.tm_id = tm.id
+        WHERE tp.tournament_id = #{tournamentId}
+          AND tp.user_id IN (
+            SELECT tm2.user_id FROM team_member tm2 WHERE tm2.team_id = #{teamId}
+        )
+        ORDER BY tp.create_time DESC
     </select>
 
 </mapper>

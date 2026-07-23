@@ -72,5 +72,25 @@ export const teamApi = {
    */
   getTeamMembers(teamId) {
     return request.get('/team-members/by-team', { params: { teamId } })
+  },
+
+  /**
+   * 更新队伍成员信息（含球员信息联动更新）
+   * @param {number} memberId - 队伍成员ID
+   * @param {Object} data - { portraitPhoto, jerseyName, jerseyNumber, position }
+   * @returns {Promise}
+   */
+  updateTeamMember(memberId, data) {
+    return request.put(`/team-members/${memberId}/portrait`, data)
+  },
+
+  /**
+   * 为队伍成员注册球员记录
+   * @param {number} memberId - 队伍成员ID
+   * @param {Object} data - { jerseyName, jerseyNumber, position }
+   * @returns {Promise}
+   */
+  registerPlayerForMember(memberId, data) {
+    return request.post(`/team-members/${memberId}/player-registration`, data)
   }
 }

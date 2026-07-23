@@ -3,10 +3,12 @@ package com.marler.teammap.service.impl;
 import com.marler.teammap.dto.response.TournamentTeamInfoVO;
 import com.marler.teammap.dto.response.TournamentTeamSimpleVO;
 import com.marler.teammap.mapper.TeamMapper;
+import com.marler.teammap.mapper.TeamMemberMapper;
 import com.marler.teammap.mapper.TournamentMapper;
 import com.marler.teammap.mapper.TournamentPlayerMapper;
 import com.marler.teammap.mapper.TournamentTeamMapper;
 import com.marler.teammap.pojo.Team;
+import com.marler.teammap.pojo.TeamMember;
 import com.marler.teammap.pojo.Tournament;
 import com.marler.teammap.pojo.TournamentPlayer;
 import com.marler.teammap.pojo.TournamentTeam;
@@ -18,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -34,6 +38,9 @@ public class TournamentTeamServiceImpl implements TournamentTeamService {
 
     @Autowired
     private TournamentPlayerMapper tournamentPlayerMapper;
+
+    @Autowired
+    private TeamMemberMapper teamMemberMapper;
 
     @Override
     @Transactional
@@ -148,20 +155,55 @@ public class TournamentTeamServiceImpl implements TournamentTeamService {
         // 6. 更新 TournamentTeam 状态
         tournamentTeamMapper.updateStatus(relId, status);
 
-        // 7. 级联更新该球队下所有球员的 TournamentPlayer 状态
-        Integer playerTargetStatus;
-        if (status == 2) {
-            // 审批通过：球员状态改为 1（可出战）
-            playerTargetStatus = 1;
-        } else {
-            // 审批拒绝：球员状态改为 3（退出）
-            playerTargetStatus = 3;
-        }
         Long tournamentId = tournamentTeam.getTournamentId();
         Long teamId = tournamentTeam.getTeamId();
-        tournamentPlayerMapper.updateStatusByTournamentIdAndTeamId(tournamentId, teamId, playerTargetStatus);
-        log.info("级联更新球员状态完成 - tournamentId: {}, teamId: {}, playerTargetStatus: {}",
-                tournamentId, teamId, playerTargetStatus);
+
+        // 7. 审批通过时，自动从 team_member 获取全队成员报名到赛事
+        if (status == 2) {
+            // 7a. 获取该球队所有已加入的成员（status=2 已加入）
+            List<TeamMember> members = teamMemberMapper.selectByTeamId(teamId);
+            if (members != null && !members.isEmpty()) {
+                // 7b. 查询已存在的报名记录
+                List<Long> userIds = members.stream()
+                        .map(TeamMember::getUserId)
+                        .collect(Collectors.toList());
+                List<TournamentPlayer> existingRegs = tournamentPlayerMapper
+                        .selectByTournamentIdAndUserIds(tournamentId, userIds);
+                Set<Long> alreadyRegisteredUserIds = existingRegs.stream()
+                        .map(TournamentPlayer::getUserId)
+                        .collect(Collectors.toSet());
+
+                // 7c. 过滤出未报名的成员，自动注册（状态=1 可出战）
+                List<TournamentPlayer> toInsert = new ArrayList<>();
+                for (TeamMember member : members) {
+                    Long uid = member.getUserId();
+                    if (!alreadyRegisteredUserIds.contains(uid)) {
+                        TournamentPlayer tp = new TournamentPlayer();
+                        tp.setTournamentId(tournamentId);
+                        tp.setUserId(uid);
+                        tp.setStatus(1); // 直接设为可出战
+                        toInsert.add(tp);
+                    }
+                }
+                if (!toInsert.isEmpty()) {
+                    tournamentPlayerMapper.insertBatch(toInsert);
+                    log.info("球队审批通过，自动将全队 {} 名成员报名到赛事 - tournamentId: {}, teamId: {}",
+                            toInsert.size(), tournamentId, teamId);
+                }
+                // 7d. 已存在的报名记录也更新为可出战
+                tournamentPlayerMapper.updateStatusByTournamentIdAndTeamId(tournamentId, teamId, 1);
+                log.info("球队审批通过，更新已有报名成员状态为可出战 - tournamentId: {}, teamId: {}",
+                        tournamentId, teamId);
+            } else {
+                log.info("球队审批通过，但该球队尚无成员 - tournamentId: {}, teamId: {}",
+                        tournamentId, teamId);
+            }
+        } else {
+            // 审批拒绝（status=3）：球员状态改为 3（退出）
+            tournamentPlayerMapper.updateStatusByTournamentIdAndTeamId(tournamentId, teamId, 3);
+            log.info("球队审批拒绝，更新球员状态为退出 - tournamentId: {}, teamId: {}",
+                    tournamentId, teamId);
+        }
 
         String statusText = status == 2 ? "已通过" : "未通过";
         log.info("审批球队申请成功 - relId: {}, status: {}({}), operatorId: {}",

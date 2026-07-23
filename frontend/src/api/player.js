@@ -31,6 +31,15 @@ export const playerApi = {
   },
 
   /**
+   * 注册球员（创建球员记录）
+   * @param {Object} data - { tmId, jerseyName, jerseyNumber, position }
+   * @returns {Promise}
+   */
+  addPlayer(data) {
+    return request.post('/players', data)
+  },
+
+  /**
    * 修改球员信息
    * @param {number} id - 球员ID
    * @param {Object} data - { jerseyName, jerseyNumber, position, status }

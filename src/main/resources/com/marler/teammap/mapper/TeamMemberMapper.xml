@@ -20,6 +20,18 @@
         UPDATE team_member SET status = #{status} WHERE id = #{id}
     </update>
 
+    <!-- 更新定妆照 -->
+    <update id="updatePortraitPhoto">
+        UPDATE team_member SET portrait_photo = #{portraitPhoto} WHERE id = #{id}
+    </update>
+
+    <!-- 更新队伍成员信息 -->
+    <update id="update">
+        UPDATE team_member
+        SET portrait_photo = #{portraitPhoto}
+        WHERE id = #{id}
+    </update>
+
     <!-- 查询用户活跃的成员记录（status != 3 已退出） -->
     <select id="selectActiveByUserId" resultType="com.marler.teammap.pojo.TeamMember">
         SELECT * FROM team_member WHERE user_id = #{userId} AND status != 3

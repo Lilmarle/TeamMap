@@ -19,11 +19,6 @@
       </template>
     </el-alert>
 
-    <!-- 已加入球队 → 使用 HSMyTeam 组件展示详情页 -->
-    <template v-else-if="myTeam">
-      <HSMyTeam :team="myTeam" />
-    </template>
-
     <!-- 未加入球队 → 直接展示可加入的球队列表 -->
     <template v-else>
       <div class="section-header">
@@ -97,10 +92,10 @@ import { UserFilled, Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { teamApi } from '@/api/team'
 import { useUserStore } from '@/store/user'
-import HSMyTeam from './HSMyTeam.vue'
 import HSCreateTeam from './HSCreateTeam.vue'
 
 const userStore = useUserStore()
+const emit = defineEmits(['joined'])
 
 /** 运动类型标签颜色映射 */
 const SPORT_TAG_MAP = { 1: '', 2: 'success', 3: 'warning' }
@@ -110,10 +105,7 @@ const loading = ref(true)
 const loadFailed = ref(false)
 const errorMessage = ref('')
 
-/** 当前用户的球队信息 */
-const myTeam = ref(null)
-
-/** 可加入球队列表 */
+/** 可选球队列表 */
 const availableTeams = ref([])
 const teamsLoading = ref(false)
 const joiningTeamId = ref(null)
@@ -122,7 +114,7 @@ const joiningTeamId = ref(null)
 const showCreatePanel = ref(false)
 
 /**
- * 初始化：检查是否已加入球队，同时加载可用球队列表
+ * 初始化：加载可用球队列表
  */
 async function init() {
   loading.value = true
@@ -130,57 +122,13 @@ async function init() {
   errorMessage.value = ''
 
   try {
-    await Promise.all([checkMyTeam(), loadAvailableTeams()])
+    await loadAvailableTeams()
   } catch (e) {
     loadFailed.value = true
     errorMessage.value = e.message || '加载失败'
   } finally {
     loading.value = false
   }
-}
-
-/**
- * 检查当前用户是否已加入球队
- * 使用 GET /api/team-members/current 获取当前用户的队伍成员信息
- */
-async function checkMyTeam() {
-  try {
-    const res = await teamApi.getCurrentMembership()
-    const memberships = res.data || []
-
-    if (memberships.length > 0) {
-      // 取第一条活跃的成员记录
-      const membership = memberships[0]
-      // 从已加载的球队列表中查找对应的球队详情
-      const teamInfo = availableTeams.value.find(t => t.teamId === membership.teamId)
-
-      myTeam.value = {
-        teamId: membership.teamId,
-        teamName: teamInfo?.teamName || '',
-        teamShortName: teamInfo?.teamShortName || '',
-        teamLogo: teamInfo?.teamLogo || '',
-        sportType: teamInfo?.sportType,
-        sportTypeName: teamInfo?.sportTypeName || '',
-        gender: teamInfo?.gender,
-        teamGenderName: teamInfo?.genderName || '',
-        teamDescription: teamInfo?.teamDescription || '',
-        role: membership.role,
-        roleName: getRoleName(membership.role),
-        joinTime: membership.joinTime
-      }
-    } else {
-      myTeam.value = null
-    }
-  } catch (e) {
-    // 接口异常视为未加入球队
-    console.warn('查询当前用户队伍信息失败:', e)
-    myTeam.value = null
-  }
-}
-
-function getRoleName(role) {
-  const map = { 1: '队员', 2: '队长', 3: '教练', 4: '领队', 5: '创建者' }
-  return map[role] || '未知'
 }
 
 /**
@@ -221,23 +169,8 @@ async function handleJoinTeam(team) {
     })
     ElMessage.success(`已加入球队「${team.teamName}」`)
 
-    // 直接用已加入的球队数据切换到 HSMyTeam
-    myTeam.value = {
-      teamId: team.teamId,
-      teamName: team.teamName,
-      teamShortName: team.teamShortName,
-      teamLogo: team.teamLogo,
-      sportType: team.sportType,
-      sportTypeName: team.sportTypeName,
-      gender: team.gender,
-      teamGenderName: team.genderName,
-      teamDescription: team.teamDescription,
-      role: 1,
-      roleName: '队员'
-    }
-
-    // 后台刷新获取完整数据
-    init()
+    // 通知父组件重新检查球队状态
+    emit('joined')
   } catch (e) {
     ElMessage.error(e.message || '加入球队失败')
   } finally {
@@ -251,7 +184,7 @@ async function handleJoinTeam(team) {
 function handleCreateSuccess() {
   showCreatePanel.value = false
   ElMessage.success('球队创建成功，即将刷新')
-  init()
+  emit('joined')
 }
 
 function getSportTagType(type) {
@@ -294,80 +227,6 @@ onMounted(() => {
   font-weight: 600;
   color: var(--color-text-primary, #303133);
   margin: 0;
-}
-
-/* 我的球队卡片 */
-.team-card-wrapper {
-  display: flex;
-  justify-content: center;
-  padding: 0 0 20px;
-}
-
-.my-team-card {
-  width: 100%;
-  max-width: 600px;
-}
-
-.team-card-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.team-basic-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.team-name {
-  font-size: 20px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  color: var(--color-text-primary, #303133);
-}
-
-.team-meta {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.my-role-tag {
-  align-self: flex-start;
-}
-
-.team-card-body {
-  padding: 0 4px;
-}
-
-.team-desc {
-  font-size: 14px;
-  color: var(--color-text-secondary, #606266);
-  line-height: 1.6;
-  margin: 0 0 16px 0;
-}
-
-.team-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: var(--color-text-placeholder, #c0c4cc);
-}
-
-.stat-value {
-  font-size: 14px;
-  color: var(--color-text-primary, #303133);
-  font-weight: 500;
 }
 
 /* 可加入球队列表 */
